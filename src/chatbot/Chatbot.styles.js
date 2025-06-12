@@ -12,8 +12,7 @@ const fadeSlideIn = keyframes`
   }
 `
 
-export const ChatbotContainer = styled.div`
-  position: static;
+export const ChatbotContainer = styled.div`;
   z-index: 1000;
 `
 
