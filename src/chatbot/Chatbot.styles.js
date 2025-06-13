@@ -54,7 +54,7 @@ export const ChatWindow = styled.div`
 export const Header = styled.div`
   background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
   color: #fff;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -65,7 +65,7 @@ export const Header = styled.div`
   border-top-left-radius: 22px;
   border-top-right-radius: 22px;
   border-bottom: 1.5px solid #e0eaff;
-  width: 200%;
+  width: 100%;
 `
 
 export const CloseButton = styled.button`
@@ -75,6 +75,8 @@ export const CloseButton = styled.button`
   font-size: 1.5rem;
   cursor: pointer;
   transition: color 0.2s;
+  padding: 0 5px;
+  margin-right: 5px;
   &:hover {
     color: #e0eaff;
   }

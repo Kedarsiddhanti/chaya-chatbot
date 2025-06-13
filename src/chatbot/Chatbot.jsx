@@ -296,7 +296,7 @@ function Chatbot() {
                 <span style={{ fontSize: '1.5rem', marginRight: 8 }}>🤖</span>
                 Chaya
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginRight: 20 }}>
                 <button
                   onClick={toggleTheme}
                   style={{
@@ -304,13 +304,29 @@ function Chatbot() {
                     border: 'none',
                     color: '#fff',
                     fontSize: '1.2rem',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    marginRight: 5
                   }}
                   title="Toggle theme"
                 >
                   {theme === 'dark' ? '🌙' : '☀️'}
                 </button>
-                <CloseButton onClick={handleClose}>×</CloseButton>
+                <button 
+                  onClick={handleClose}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#fff',
+                    fontSize: '1.5rem',
+                    cursor: 'pointer',
+                    padding: '0 8px',
+                    alignContent: 'center',
+                    display: 'flex',
+                    marginRight: 10
+                  }}
+                >
+                  ×
+                </button>
               </div>
             </Header>
             
