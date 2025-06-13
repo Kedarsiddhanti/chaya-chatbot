@@ -23,7 +23,7 @@ export const FloatingButton = styled.button`
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4a90e2 60%, #6aa9f0 100%); // Lightened
+  background: linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%); // Improved gradient
   color: #fff;
   border: none;
   font-size: 2rem;
@@ -31,7 +31,7 @@ export const FloatingButton = styled.button`
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
   &:hover {
-    background: linear-gradient(135deg, #3a80d2 60%, #5a99e0 100%); // Lightened
+    background: linear-gradient(135deg, #3a80d2 0%, #4a8ad8 50%, #5a99e0 100%); // Improved hover gradient
     box-shadow: 0 6px 16px rgba(0,0,0,0.18); // Reduced shadow
   }
 `
@@ -40,8 +40,8 @@ export const ChatWindow = styled.div`
   width: 100%;
   height: 100%;
   background: 
-    linear-gradient(120deg, #f8faff 60%, #edf5ff 100%), // Lightened
-    repeating-linear-gradient(135deg, #f8faff, #f8faff 20px, #f0f6ff 20px, #f0f6ff 40px); // Lightened
+    linear-gradient(135deg, #f5faff 0%, #edf7ff 50%, #e8f4ff 100%), // Improved light gradient
+    repeating-linear-gradient(135deg, #f0f7ff, #f0f7ff 20px, #e8f4ff 20px, #e8f4ff 40px); // Very light blue pattern
   border-radius: 22px;
   display: flex;
   flex-direction: column;
@@ -52,7 +52,7 @@ export const ChatWindow = styled.div`
 `
 
 export const Header = styled.div`
-  background: linear-gradient(90deg, #4a90e2 60%, #6aa9f0 100%); // Lightened
+  background: linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%); // Improved gradient
   color: #fff;
   padding: 1rem 1.25rem;
   display: flex;
@@ -86,8 +86,7 @@ export const Messages = styled.div`
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
-  background: 
-    repeating-linear-gradient(135deg, #f8faff, #f8faff 20px, #f0f6ff 20px, #f0f6ff 40px); // Lightened
+  background: linear-gradient(135deg, #f0f7ff, #e8f4ff); // Very light blue gradient
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -105,8 +104,8 @@ export const MessageBubble = styled.div`
   align-self: ${({ $sender }) => ($sender === 'user' ? 'flex-end' : 'flex-start')};
   background: ${({ $sender }) =>
     $sender === 'user'
-      ? 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)' // Lightened
-      : 'linear-gradient(90deg, #e5e5ea 70%, #f0f4ff 100%)'};
+      ? 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%)' // Improved gradient
+      : 'linear-gradient(135deg, #e5e5ea 0%, #eaeaf0 50%, #f0f4ff 100%)'};
   color: ${({ $sender }) => ($sender === 'user' ? '#fff' : '#222')};
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   position: relative;

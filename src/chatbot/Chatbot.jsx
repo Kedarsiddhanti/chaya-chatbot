@@ -392,6 +392,9 @@ function Chatbot() {
             width: '100%',
             height: '100%',
             margin: 0,
+            background: theme === 'dark' 
+              ? 'linear-gradient(135deg, #2a2e38 0%, #323742 50%, #3a3f4a 100%)' // Improved dark gradient
+              : 'linear-gradient(135deg, #f5faff 0%, #edf7ff 50%, #e8f4ff 100%)', // Improved light gradient
             borderRadius: viewport.width <= breakpoints.tablet ? 
               (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18
           }}>
@@ -400,8 +403,8 @@ function Chatbot() {
                 cursor: viewport.width <= breakpoints.tablet ? 'default' : (dragging ? 'grabbing' : 'grab'),
                 userSelect: 'none',
                 background: theme === 'dark'
-                  ? 'linear-gradient(90deg, #3a4050 60%, #4a5060 100%)' // Lightened
-                  : 'linear-gradient(90deg, #4a90e2 60%, #6aa9f0 100%)', // Lightened from #007bff
+                  ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // More dimensional gradient
+                  : 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%)', // Smoother, more dimensional gradient
                 color: '#fff',
                 fontWeight: 600,
                 fontSize: viewport.isMobile ? '1rem' : '1.1rem',
@@ -494,7 +497,7 @@ function Chatbot() {
             <StyledMessages style={{
               background: theme === 'dark'
                 ? 'repeating-linear-gradient(135deg, #2a2e38, #2a2e38 20px, #323742 20px, #323742 40px)' // Lightened
-                : 'repeating-linear-gradient(135deg, #f8faff, #f8faff 20px, #f0f6ff 20px, #f0f6ff 40px)', // Lightened
+                : 'linear-gradient(135deg, #f0f7ff, #e8f4ff)', // Very light blue gradient
               padding: viewport.isMobile ? '0.8rem' : '1rem',
               boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.02)' // Reduced shadow
             }}>
@@ -515,11 +518,11 @@ function Chatbot() {
                   <MessageBubble $sender={msg.sender} style={{
                     background: msg.sender === 'user'
                       ? (theme === 'dark'
-                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
-                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)') // Lightened
+                        ? 'linear-gradient(135deg, #4a6da0 0%, #5a7db0 50%, #6a8dc0 100%)' // Improved dark gradient
+                        : 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%)') // Improved light gradient
                       : (theme === 'dark'
-                        ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Lightened
-                        : 'linear-gradient(90deg, #edf0f5 70%, #e6eeff 100%)'), // Lightened
+                        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // Improved dark gradient
+                        : 'linear-gradient(135deg, #ffffff 0%, #f5f8ff 50%, #f0f7ff 100%)'), // Improved light gradient
                     color: msg.sender === 'user' ? '#fff' : (theme === 'dark' ? '#f0f4f8' : '#3a4555'),
                     boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
                     position: 'relative',
@@ -529,27 +532,30 @@ function Chatbot() {
                     maxWidth: viewport.isMobile ? '75%' : '80%',
                     border: msg.sender === 'user'
                       ? (theme === 'dark' ? '1px solid #5a7db0' : '1px solid #6aa9f0') // Lightened
-                      : (theme === 'dark' ? '1px solid #4a5060' : '1px solid #e6eeff') // Lightened
+                      : (theme === 'dark' ? '1px solid #4a5060' : '1px solid #d8e6ff') // Light blue border
                   }}>
                     {msg.text}
                     {msg.file && (
                       <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
                         {msg.isPdf ? (
                           <span style={{ 
-                            background: theme === 'dark' ? '#e05252' : '#ff5252', // Lightened from #ff0000
-                            color: 'white',
+                            background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
+                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
                             padding: '0.1rem 0.3rem',
                             borderRadius: 4,
                             fontWeight: 'bold',
                             fontSize: '0.8rem',
                             marginRight: 6,
                             display: 'inline-block',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)' // Reduced shadow
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.03)' // Reduced shadow
                           }}>PDF</span>
                         ) : (
-                          <span role="img" aria-label="file" style={{ marginRight: 4 }}>📄</span>
+                          <span role="img" aria-label="file" style={{ 
+                            marginRight: 4,
+                            opacity: theme === 'dark' ? 0.8 : 0.6 // Reduced opacity for less contrast
+                          }}>📄</span>
                         )}
-                        {msg.file.name}
+                        {msg.fileName}
                       </span>
                     )}
                     <span style={{
@@ -563,10 +569,22 @@ function Chatbot() {
                     }}>
                       {formatTime(msg.time)}{' '}
                       {msg.sender === 'user' && (
-                        <span style={{ marginLeft: 4, fontSize: '1em' }}>
-                          {msg.status === 'sent' && '🕑'}
-                          {msg.status === 'delivered' && '✔️'}
-                          {msg.status === 'read' && '✅'}
+                        <span style={{ 
+                          marginLeft: 4, 
+                          fontSize: '0.9em',
+                          color: theme === 'dark' ? '#d8e6ff' : '#f0f7ff' // Very light blue, close to white
+                        }}>
+                          {msg.status === 'sent' && (
+                            <span title="Sending" role="img" aria-label="sending">⏱️</span>
+                          )}
+                          {msg.status === 'delivered' && (
+                            <span title="Delivered" role="img" aria-label="delivered">✓</span>
+                          )}
+                          {msg.status === 'read' && (
+                            <span title="Read" style={{ color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' }}>
+                              <span style={{ letterSpacing: '-2px' }}>✓✓</span>
+                            </span>
+                          )}
                         </span>
                       )}
                     </span>
@@ -585,17 +603,27 @@ function Chatbot() {
                   <div style={{ fontSize: '1.3rem', marginLeft: 8 }}>{userAvatar}</div>
                   <MessageBubble $sender="user" style={{
                     background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #0056b3 70%, #00aaff 100%)'
-                      : 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)',
+                      ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
+                      : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)',
                     color: '#fff',
                     fontStyle: 'italic',
-                    opacity: 0.7
+                    opacity: 0.7,
+                    border: theme === 'dark' ? '1px solid #5a7db0' : '1px solid #6aa9f0'
                   }}>
                     <span className="typing">
                       <span style={{ animation: 'blink 1s infinite' }}>You are typing</span>
-                      <span style={{ animation: 'blink 1s infinite 0.33s' }}>.</span>
-                      <span style={{ animation: 'blink 1s infinite 0.66s' }}>.</span>
-                      <span style={{ animation: 'blink 1s infinite 0.99s' }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.33s',
+                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' // Very light blue
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.66s',
+                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' // Very light blue
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.99s',
+                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' // Very light blue
+                      }}>.</span>
                     </span>
                   </MessageBubble>
                 </div>
@@ -610,16 +638,26 @@ function Chatbot() {
                   <MessageBubble $sender="bot" style={{
                     background: theme === 'dark'
                       ? 'linear-gradient(90deg, #2a2f3a 70%, #3a3f4b 100%)'
-                      : 'linear-gradient(90deg, #e5e5ea 70%, #f0f4ff 100%)',
-                    color: theme === 'dark' ? '#fafdff' : '#222',
+                      : 'linear-gradient(90deg, #ffffff 70%, #f8fbff 100%)',
+                    color: theme === 'dark' ? '#fafdff' : '#3a4555',
                     fontStyle: 'italic',
-                    opacity: 0.7
+                    opacity: 0.7,
+                    border: theme === 'dark' ? '1px solid #4a5060' : '1px solid #d8e6ff'
                   }}>
                     <span className="typing">
                       <span style={{ animation: 'blink 1s infinite' }}>Chaya is typing</span>
-                      <span style={{ animation: 'blink 1s infinite 0.33s' }}>.</span>
-                      <span style={{ animation: 'blink 1s infinite 0.66s' }}>.</span>
-                      <span style={{ animation: 'blink 1s infinite 0.99s' }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.33s',
+                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff' // Very light blue
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.66s',
+                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff' // Very light blue
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.99s',
+                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff' // Very light blue
+                      }}>.</span>
                     </span>
                   </MessageBubble>
                 </div>
@@ -633,7 +671,7 @@ function Chatbot() {
                 flexWrap: 'wrap',
                 gap: viewport.isMobile ? '0.4rem' : '0.5rem',
                 padding: viewport.isMobile ? '0.4rem 0.8rem 0.2rem 0.8rem' : '0.5rem 1rem 0.25rem 1rem',
-                background: theme === 'dark' ? '#2a2e38' : '#f8faff' // Lightened
+                background: theme === 'dark' ? '#2a2e38' : '#f0f7ff' // Very light blue
               }}>
                 {QUICK_REPLIES.map((reply, idx) => (
                   <button
@@ -662,9 +700,9 @@ function Chatbot() {
               maxWidth: viewport.width <= breakpoints.tablet ? '100%' : 400,
               flexDirection: 'column',
               gap: 0,
-              background: theme === 'dark' ? '#2a2e38' : '#f8faff', // Lightened
+              background: theme === 'dark' ? '#2a2e38' : '#f5faff', // Very light blue
               padding: viewport.isMobile ? '0.6rem' : '0.75rem',
-              borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #e6eeff' // Lightened
+              borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff' // Light blue border
             }}>
               {/* First line: input and send */}
               <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -823,16 +861,24 @@ function Chatbot() {
                 />
                 <button
                   type="button"
-                  onClick={() => document.getElementById('file-upload').click()}
+                  onClick={(e) => {
+                    document.getElementById('file-upload').click();
+                    // Start animation on click
+                    e.currentTarget.style.animation = 'spin 1.5s ease-in-out';
+                    // Reset animation after it completes
+                    setTimeout(() => {
+                      e.currentTarget.style.animation = 'none';
+                    }, 1500);
+                  }}
                   style={{
                     background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #0056b3 70%, #00aaff 100%)'
-                      : 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)',
-                    color: '#fff',
+                      ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Reduced contrast
+                      : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)', // Very light blue, reduced contrast
+                    color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
                     border: 'none',
                     borderRadius: '50%',
-                    width: '1.5rem',
-                    height: '1.5rem',
+                    width: '1.8rem',
+                    height: '1.8rem',
                     fontSize: '1rem',
                     display: 'flex',
                     alignItems: 'center',
@@ -840,11 +886,31 @@ function Chatbot() {
                     cursor: 'pointer',
                     padding: 0,
                     marginRight: '0.5rem',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
+                    transition: 'transform 0.3s ease, background 0.2s',
+                    transformOrigin: 'center',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    animation: 'none' // No animation by default
                   }}
                   title="Attach file"
+                  // Remove any hover animations
+                  onMouseEnter={() => {}}
+                  onMouseLeave={() => {}}
                 >
-                  +
+                  <div style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ 
+                      fontSize: '1.2rem', 
+                      fontWeight: 'bold'
+                    }}>+</span>
+                  </div>
                 </button>
                 {file && (
                   <>
@@ -862,8 +928,8 @@ function Chatbot() {
                           display: 'inline-block'
                         }}>
                           <span style={{ 
-                            background: '#ff0000',
-                            color: 'white',
+                            background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
+                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
                             padding: '0.1rem 0.3rem',
                             borderRadius: 4,
                             fontWeight: 'bold',
@@ -882,8 +948,8 @@ function Chatbot() {
                             width: '18px',
                             height: '18px',
                             borderRadius: '50%',
-                            background: '#ff3b30',
-                            color: 'white',
+                            background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
+                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
                             border: 'none',
                             fontSize: '10px',
                             display: 'flex',
@@ -892,7 +958,7 @@ function Chatbot() {
                             cursor: 'pointer',
                             padding: 0,
                             fontWeight: 'bold',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                           }}
                           title="Cancel upload"
                         >
@@ -904,9 +970,9 @@ function Chatbot() {
                       onClick={handleSummarize}
                       style={{
                         background: theme === 'dark'
-                          ? 'linear-gradient(90deg, #23272f 70%, #3a3f4b 100%)'
-                          : 'linear-gradient(90deg, #28a745 70%, #5cd67f 100%)',
-                        color: '#fff',
+                          ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Reduced contrast
+                          : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)', // Very light blue, reduced contrast
+                        color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
                         border: 'none',
                         borderRadius: 8,
                         padding: '0.5rem 1rem',
@@ -914,7 +980,7 @@ function Chatbot() {
                         cursor: 'pointer',
                         whiteSpace: 'nowrap',
                         fontWeight: 600,
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
                         marginLeft: 4
                       }}
                     >
@@ -930,24 +996,24 @@ function Chatbot() {
       <style>
         {`
           @keyframes fadeInBubble {
-            from { opacity: 0; transform: translateY(20px) scale(0.98);}
+            from { opacity: 0; transform: translateY(10px) scale(0.98);}
             to { opacity: 1; transform: none;}
           }
           @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.3; }
           }
           @keyframes bounce {
             0% { transform: scale(1);}
-            100% { transform: scale(1.08);}
+            100% { transform: scale(1.05);}
           }
           @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 4px 16px rgba(0,0,0,0.3);}
-            100% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(0,0,0,0.6);}
+            0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.15);}
+            100% { transform: scale(1.03); box-shadow: 0 4px 16px rgba(0,0,0,0.2);}
           }
           @keyframes glow {
-            0% { text-shadow: 0 0 5px rgba(255,255,255,0.5);}
-            100% { text-shadow: 0 0 15px rgba(255,255,255,0.8);}
+            0% { text-shadow: 0 0 3px rgba(255,255,255,0.3);}
+            100% { text-shadow: 0 0 8px rgba(255,255,255,0.5);}
           }
           @keyframes subtle-pulse {
             0% { opacity: 0.9; }
@@ -956,16 +1022,20 @@ function Chatbot() {
           }
           @keyframes botIconPulsate {
             0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
+            50% { transform: scale(1.08); }
             100% { transform: scale(1); }
           }
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
           }
           @keyframes slideUpFade {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
           }
         `}
       </style>
