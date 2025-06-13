@@ -120,10 +120,6 @@ export const InputArea = styled.div`
   padding: 0.75rem;
   background: #fff;
   border-top: 1.5px solid #e0eaff;
-  border-bottom-left-radius: 22px;
-  border-bottom-right-radius: 22px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
-  gap: 0.5rem;
   width: 100%;
   box-sizing: border-box;
   input {

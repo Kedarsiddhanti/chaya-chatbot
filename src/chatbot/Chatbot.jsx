@@ -275,13 +275,13 @@ function Chatbot() {
         // On mobile/tablet, position at bottom
         setPosition({ 
           x: 0, 
-          y: window.innerHeight - (viewport.isMobile ? 500 : 520) 
+          y: window.innerHeight - (viewport.isMobile ? '90vh' : '75vh') 
         })
       } else {
         // On desktop, position at bottom right
         setPosition({ 
-          x: window.innerWidth - 420, 
-          y: window.innerHeight - 520 
+          x: window.innerWidth - 485, 
+          y: window.innerHeight - 570 
         })
       }
     }
@@ -298,19 +298,19 @@ function Chatbot() {
     if (viewport.width <= breakpoints.tablet) {
       setPosition({ x: 0, y: window.innerHeight })
     } else {
-      setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+      setPosition({ x: window.innerWidth - 485, y: window.innerHeight - 570 })
     }
   }
 
-  // Handle chat open
+  // Handle open
   const handleOpen = () => {
     setOpen(true)
     
     // Position based on screen size
     if (viewport.width <= breakpoints.tablet) {
-      setPosition({ x: 0, y: window.innerHeight - (viewport.isMobile ? 500 : 520) })
+      setPosition({ x: 0, y: window.innerHeight - (viewport.isMobile ? '90vh' : '75vh') })
     } else {
-      setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+      setPosition({ x: window.innerWidth - 485, y: window.innerHeight - 570 })
     }
   }
 
@@ -378,9 +378,9 @@ function Chatbot() {
           boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
           borderRadius: viewport.width <= breakpoints.tablet ? 
             (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18,
-          width: viewport.width <= breakpoints.tablet ? '100%' : '400px',
+          width: viewport.width <= breakpoints.tablet ? '100%' : '465px',
           height: viewport.width <= breakpoints.tablet ? 
-            (viewport.isMobile ? '90vh' : '70vh') : '500px',
+            (viewport.isMobile ? '90vh' : '75vh') : '550px',
           background: themeStyles.background || 'rgba(255,255,255,0.95)',
           color: themeStyles.color,
           border: themeStyles.border,
@@ -396,7 +396,9 @@ function Chatbot() {
               ? 'linear-gradient(135deg, #2a2e38 0%, #323742 50%, #3a3f4a 100%)' // Improved dark gradient
               : 'linear-gradient(135deg, #f5faff 0%, #edf7ff 50%, #e8f4ff 100%)', // Improved light gradient
             borderRadius: viewport.width <= breakpoints.tablet ? 
-              (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18
+              (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18,
+            display: 'flex',
+            flexDirection: 'column'
           }}>
             <Header
               style={{
@@ -697,12 +699,15 @@ function Chatbot() {
               </div>
             )}
             <StyledInputArea style={{
-              maxWidth: viewport.width <= breakpoints.tablet ? '100%' : 400,
+              width: '100%',
+              maxWidth: '100%',
               flexDirection: 'column',
               gap: 0,
               background: theme === 'dark' ? '#2a2e38' : '#f5faff', // Very light blue
               padding: viewport.isMobile ? '0.6rem' : '0.75rem',
-              borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff' // Light blue border
+              borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff', // Light blue border
+              borderBottomLeftRadius: viewport.width <= breakpoints.tablet ? 0 : '18px',
+              borderBottomRightRadius: viewport.width <= breakpoints.tablet ? 0 : '18px'
             }}>
               {/* First line: input and send */}
               <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
