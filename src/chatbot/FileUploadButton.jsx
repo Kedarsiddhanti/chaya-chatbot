@@ -100,3 +100,4 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
 };
 
 export default FileUploadButton;
+
