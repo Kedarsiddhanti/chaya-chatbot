@@ -863,22 +863,12 @@ function Chatbot() {
                   type="button"
                   onClick={(e) => {
                     document.getElementById('file-upload').click();
-                    // Remove animation first to reset it
-                    e.currentTarget.style.animation = 'none';
-                    // Force reflow to ensure the animation reset takes effect
-                    void e.currentTarget.offsetWidth;
-                    // Start animation on click with faster rotation
-                    e.currentTarget.style.animation = 'spin 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                    // Reset animation after it completes
-                    setTimeout(() => {
-                      e.currentTarget.style.animation = 'none';
-                    }, 800);
                   }}
                   style={{
                     background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Reduced contrast
-                      : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)', // Very light blue, reduced contrast
-                    color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
+                      ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)'
+                      : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)',
+                    color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
                     border: 'none',
                     borderRadius: '50%',
                     width: '1.8rem',
@@ -890,12 +880,10 @@ function Chatbot() {
                     cursor: 'pointer',
                     padding: 0,
                     marginRight: '0.5rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
-                    transition: 'transform 0.3s ease, background 0.2s',
-                    transformOrigin: 'center',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    transition: 'background 0.2s',
                     position: 'relative',
-                    overflow: 'hidden',
-                    animation: 'none' // No animation by default
+                    overflow: 'hidden'
                   }}
                   title="Attach file"
                 >
@@ -996,6 +984,15 @@ function Chatbot() {
       )}
       <style>
         {`
+          @keyframes whatsappSpin {
+            0% { transform: rotate(0deg); }
+            80% { transform: rotate(385deg); }
+            100% { transform: rotate(360deg); }
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
           @keyframes fadeInBubble {
             from { opacity: 0; transform: translateY(10px) scale(0.98);}
             to { opacity: 1; transform: none;}
@@ -1003,40 +1000,6 @@ function Chatbot() {
           @keyframes blink {
             0%, 100% { opacity: 0.8; }
             50% { opacity: 0.3; }
-          }
-          @keyframes bounce {
-            0% { transform: scale(1);}
-            100% { transform: scale(1.05);}
-          }
-          @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.15);}
-            100% { transform: scale(1.03); box-shadow: 0 4px 16px rgba(0,0,0,0.2);}
-          }
-          @keyframes glow {
-            0% { text-shadow: 0 0 3px rgba(255,255,255,0.3);}
-            100% { text-shadow: 0 0 8px rgba(255,255,255,0.5);}
-          }
-          @keyframes subtle-pulse {
-            0% { opacity: 0.9; }
-            50% { opacity: 1; }
-            100% { opacity: 0.9; }
-          }
-          @keyframes botIconPulsate {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
           }
         `}
       </style>
