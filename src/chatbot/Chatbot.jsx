@@ -863,12 +863,16 @@ function Chatbot() {
                   type="button"
                   onClick={(e) => {
                     document.getElementById('file-upload').click();
-                    // Start animation on click
-                    e.currentTarget.style.animation = 'spin 1.5s ease-in-out';
+                    // Remove animation first to reset it
+                    e.currentTarget.style.animation = 'none';
+                    // Force reflow to ensure the animation reset takes effect
+                    void e.currentTarget.offsetWidth;
+                    // Start animation on click with faster rotation
+                    e.currentTarget.style.animation = 'spin 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
                     // Reset animation after it completes
                     setTimeout(() => {
                       e.currentTarget.style.animation = 'none';
-                    }, 1500);
+                    }, 800);
                   }}
                   style={{
                     background: theme === 'dark'
@@ -894,9 +898,6 @@ function Chatbot() {
                     animation: 'none' // No animation by default
                   }}
                   title="Attach file"
-                  // Remove any hover animations
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
                 >
                   <div style={{
                     position: 'absolute',
