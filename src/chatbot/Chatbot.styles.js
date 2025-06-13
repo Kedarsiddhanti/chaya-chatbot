@@ -37,18 +37,18 @@ export const FloatingButton = styled.button`
 `
 
 export const ChatWindow = styled.div`
-  width: 320px;
-  height: 420px;
+  width: 100%;
+  height: 100%;
   background: 
     linear-gradient(120deg, #fafdff 60%, #e3f0ff 100%),
     repeating-linear-gradient(135deg, #f7f7f7, #f7f7f7 20px, #f0f4ff 20px, #f0f4ff 40px);
   border-radius: 22px;
-  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18), 0 1.5px 0 #e0eaff;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border: 1.5px solid #e0eaff;
   animation: ${fadeSlideIn} 0.4s cubic-bezier(.4,1.2,.6,1) both;
+  box-sizing: border-box;
 `
 
 export const Header = styled.div`
@@ -65,7 +65,7 @@ export const Header = styled.div`
   border-top-left-radius: 22px;
   border-top-right-radius: 22px;
   border-bottom: 1.5px solid #e0eaff;
-  width: 100%;
+  width: 200%;
 `
 
 export const CloseButton = styled.button`
@@ -89,6 +89,8 @@ export const Messages = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
   /* Subtle inner shadow for depth */
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
 `
@@ -121,6 +123,8 @@ export const InputArea = styled.div`
   border-bottom-right-radius: 22px;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
   gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
   input {
     flex: 1;
     border: 1.5px solid #cce0ff;

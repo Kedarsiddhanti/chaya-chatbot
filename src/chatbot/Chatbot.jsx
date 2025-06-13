@@ -266,9 +266,16 @@ function Chatbot() {
           background: themeStyles.background || 'rgba(255,255,255,0.95)',
           color: themeStyles.color,
           border: themeStyles.border,
-          backdropFilter: 'blur(2px)'
+          backdropFilter: 'blur(2px)',
+          padding: 0,
+          overflow: 'hidden'
         }}>
-          <StyledChatWindow>
+          <StyledChatWindow style={{
+            width: '100%',
+            height: '100%',
+            margin: 0,
+            borderRadius: 18
+          }}>
             <Header
               style={{
                 cursor: dragging ? 'grabbing' : 'grab',
