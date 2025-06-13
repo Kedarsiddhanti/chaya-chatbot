@@ -245,7 +245,7 @@ function Chatbot() {
         <StyledFloatingButton
           onClick={handleOpen}
           style={{
-            animation: 'bounce 1.2s infinite alternate'
+            animation: 'pulse 1.5s infinite alternate'
           }}
         >
           💬
@@ -293,8 +293,14 @@ function Chatbot() {
               onPointerDown={handlePointerDown}
             >
               <span>
-                <span style={{ fontSize: '1.5rem', marginRight: 8 }}>🤖</span>
-                Chaya
+                <span style={{ 
+                  fontSize: '1.5rem', 
+                  marginRight: 8,
+                  animation: 'botIconPulsate 2s ease-in-out infinite',
+                  display: 'inline-block',
+                  transformOrigin: 'center'
+                }}>🤖</span>
+                <span style={{ animation: 'subtle-pulse 3s infinite' }}>Chaya</span>
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginRight: 20 }}>
                 <button
@@ -702,6 +708,24 @@ function Chatbot() {
           @keyframes bounce {
             0% { transform: scale(1);}
             100% { transform: scale(1.08);}
+          }
+          @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 16px rgba(0,0,0,0.3);}
+            100% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(0,0,0,0.6);}
+          }
+          @keyframes glow {
+            0% { text-shadow: 0 0 5px rgba(255,255,255,0.5);}
+            100% { text-shadow: 0 0 15px rgba(255,255,255,0.8);}
+          }
+          @keyframes subtle-pulse {
+            0% { opacity: 0.9; }
+            50% { opacity: 1; }
+            100% { opacity: 0.9; }
+          }
+          @keyframes botIconPulsate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
           }
         `}
       </style>
