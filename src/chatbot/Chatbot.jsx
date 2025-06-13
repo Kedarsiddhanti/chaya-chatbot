@@ -11,6 +11,7 @@ import {
   MessageBubble,
   InputArea as StyledInputArea,
 } from './Chatbot.styles'
+import FileUploadButton from './FileUploadButton';
 
 // Add responsive breakpoints
 const breakpoints = {
@@ -18,46 +19,6 @@ const breakpoints = {
   tablet: 768,
   laptop: 1024
 }
-
-// Add AttachButton component inline
-const AttachButton = ({ onClick, theme, isSpinning }) => {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        background: theme === 'dark'
-          ? 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
-          : 'linear-gradient(90deg, #4a90e2 0%, #6aa9f0 100%)',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '50%',
-        width: '2.4rem',
-        height: '2.4rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        padding: 0,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-        marginRight: '0.5rem'
-      }}
-    >
-      <svg 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        width="20" 
-        height="20"
-        style={{
-          transition: 'transform 0.5s ease',
-          transform: isSpinning ? 'rotate(45deg)' : 'rotate(0deg)',
-          stroke: theme === 'dark' ? '#d8e6ff' : '#ffffff',
-        }}
-      >
-        <path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    </button>
-  );
-};
 
 // Helper function to check current viewport
 const getViewportWidth = () => {
@@ -106,10 +67,7 @@ function Chatbot() {
     isTablet: getViewportWidth() <= breakpoints.tablet && getViewportWidth() > breakpoints.mobile
   })
 
-  // Add this state for upload button animation
-  const [uploadButtonRotating, setUploadButtonRotating] = useState(false);
-
-  // Add a ref to track if the file dialog is open
+  // Add state for tracking dialog open status
   const fileDialogOpen = useRef(false);
 
   useEffect(() => {
@@ -169,10 +127,6 @@ function Chatbot() {
   const handleFileChange = (e) => {
     const fileObj = e.target.files[0];
     
-    // Mark dialog as closed
-    fileDialogOpen.current = false;
-    
-    // Check if file is a PDF
     if (fileObj && fileObj.type !== 'application/pdf') {
       alert('Only PDF files are allowed.');
       e.target.value = null;
@@ -183,8 +137,7 @@ function Chatbot() {
     if (fileObj) {
       setFile(fileObj);
       setFilePreview(null);
-      // Keep the rotation state true when a file is selected
-      setUploadButtonRotating(true);
+      // Keep spinning when a file is selected
     } else {
       setFile(null);
       setFilePreview(null);
@@ -434,114 +387,36 @@ function Chatbot() {
   // Add this function to handle upload button click animation
   const handleUploadButtonClick = () => {
     if (!file) {
-      // Start spinning immediately when clicked
+      // Start spinning
       setUploadButtonRotating(true);
       
       // Open the file dialog
       const fileInput = document.getElementById('file-upload');
       if (fileInput) {
+        fileInput.value = '';
         fileInput.click();
         
-        // Set a timeout to reset the spinning if no file is selected
-        setTimeout(() => {
+        // Set up a one-time focus event listener
+        const handleFocus = () => {
+          // If no file was selected, stop spinning
           if (!file) {
             setUploadButtonRotating(false);
           }
-        }, 3000);
+          window.removeEventListener('focus', handleFocus);
+        };
+        
+        window.addEventListener('focus', handleFocus, { once: true });
       }
     } else {
-      // If a file is already selected, clicking should remove it
+      // If a file is already selected, clear it
       setFile(null);
       setFilePreview(null);
       setUploadButtonRotating(false);
     }
   };
 
-  // Add a useEffect to monitor file dialog state
-  useEffect(() => {
-    // Function to check if file dialog is closed
-    const checkFileDialogClosed = () => {
-      // If dialog was open but no file was selected, reset the button
-      if (fileDialogOpen.current && !file) {
-        setUploadButtonRotating(false);
-        fileDialogOpen.current = false;
-      }
-    };
-
-    // Add multiple event listeners to catch dialog close in different scenarios
-    window.addEventListener('focus', checkFileDialogClosed);
-    window.addEventListener('click', checkFileDialogClosed);
-    
-    // Fallback timeout
-    const fallbackTimer = setTimeout(() => {
-      if (fileDialogOpen.current) {
-        setUploadButtonRotating(false);
-        fileDialogOpen.current = false;
-      }
-    }, 3000);
-    
-    return () => {
-      window.removeEventListener('focus', checkFileDialogClosed);
-      window.removeEventListener('click', checkFileDialogClosed);
-      clearTimeout(fallbackTimer);
-    };
-  }, [file]);
-
-  // Add a more robust approach to detect file dialog closure
-  useEffect(() => {
-    // Function to check if file dialog is closed
-    const checkFileDialogClosed = () => {
-      // If dialog was open but no file was selected, reset the button
-      if (fileDialogOpen.current && !file) {
-        setUploadButtonRotating(false);
-        fileDialogOpen.current = false;
-      }
-    };
-
-    // Add multiple event listeners to catch dialog close in different scenarios
-    if (fileDialogOpen.current) {
-      window.addEventListener('focus', checkFileDialogClosed);
-      window.addEventListener('click', checkFileDialogClosed);
-      window.addEventListener('blur', checkFileDialogClosed);
-      document.addEventListener('mousemove', checkFileDialogClosed);
-      
-      // Fallback timeout
-      const fallbackTimer = setTimeout(() => {
-        if (fileDialogOpen.current) {
-          setUploadButtonRotating(false);
-          fileDialogOpen.current = false;
-        }
-      }, 2000);
-      
-      return () => {
-        window.removeEventListener('focus', checkFileDialogClosed);
-        window.removeEventListener('click', checkFileDialogClosed);
-        window.removeEventListener('blur', checkFileDialogClosed);
-        document.removeEventListener('mousemove', checkFileDialogClosed);
-        clearTimeout(fallbackTimer);
-      };
-    }
-  }, [fileDialogOpen.current, file]);
-
-  // Add a direct event listener to the file input element
-  useEffect(() => {
-    const fileInput = document.getElementById('file-upload');
-    
-    const handleCancel = () => {
-      // This will fire when the file dialog is canceled
-      setTimeout(() => {
-        if (fileDialogOpen.current && !file) {
-          setUploadButtonRotating(false);
-          fileDialogOpen.current = false;
-        }
-      }, 100);
-    };
-    
-    if (fileInput) {
-      fileInput.addEventListener('cancel', handleCancel);
-      return () => fileInput.removeEventListener('cancel', handleCancel);
-    }
-  }, [file]);
+  // Remove any existing useEffect for dialog detection
+  // as we're handling it directly in the click handler
 
   return (
     
@@ -1033,17 +908,13 @@ function Chatbot() {
               )}
               {/* Input area with file upload button inline */}
               <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '0.8rem' }}>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                />
-                <AttachButton 
-                  onClick={handleUploadButtonClick} 
-                  theme={theme} 
-                  isSpinning={uploadButtonRotating} 
+                <FileUploadButton 
+                  onFileSelect={(fileObj) => {
+                    setFile(fileObj);
+                    setFilePreview(fileObj ? null : null);
+                  }}
+                  theme={theme}
+                  hasFile={file !== null}
                 />
                 <input
                   value={input}
