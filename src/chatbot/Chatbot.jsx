@@ -14,6 +14,7 @@ import {
 import FileUploadButton from './FileUploadButton'
 import QuickReplies from './QuickReplies'
 import { summarizePdf } from './SummarizeService'
+import SendButton from './SendButton'
 
 // Add responsive breakpoints
 const breakpoints = {
@@ -188,8 +189,7 @@ function Chatbot() {
       setFilePreview(null);
       setUploadButtonRotating(false);
       
-      // Remove the automatic summarization
-      // handleSummarize(); - Remove this line
+      
     }
     
     // Handle text message if not empty
@@ -824,20 +824,47 @@ function Chatbot() {
                     onClick={handleSummarize} // Direct reference to the component method
                     style={{
                       background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)'
-                        : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)',
-                      color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
+                        ? 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
+                        : 'linear-gradient(90deg, #4a90e2 0%, #6aa9f0 100%)',
+                      color: theme === 'dark' ? '#f0f4f8' : '#ffffff',
                       border: 'none',
-                      borderRadius: 8,
-                      padding: '0.5rem 1rem',
-                      fontSize: '1rem',
+                      borderRadius: viewport.isMobile ? '6px' : '8px',
+                      padding: viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem',
+                      fontSize: viewport.isMobile ? '0.9rem' : '1rem',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       fontWeight: 600,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                      marginLeft: 4
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                      marginLeft: viewport.isMobile ? '2px' : '4px',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
                     }}
                   >
+                    <svg 
+                      width={viewport.isMobile ? "14" : "16"} 
+                      height={viewport.isMobile ? "14" : "16"} 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
                     Summarize
                   </button>
                 </div>
@@ -874,31 +901,13 @@ function Chatbot() {
                     transition: 'border 0.2s'
                   }}
                 />
-                <button 
-                  onClick={() => handleSend()} 
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 'auto',
-                    height: 'auto',
-                    transition: 'transform 0.2s',
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill={theme === 'dark' ? '#00a884' : '#00a884'} // WhatsApp green color
-                    width="24px"
-                    height="24px"
-                  >
-                    <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
-                  </svg>
-                </button>
+                <SendButton 
+                  handleSend={() => handleSend()} // Explicitly wrap in a function
+                  input={input}
+                  file={file}
+                  theme={theme}
+                  viewport={viewport}
+                />
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}

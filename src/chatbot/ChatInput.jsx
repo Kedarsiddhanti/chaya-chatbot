@@ -1,5 +1,6 @@
 import React from 'react';
 import FileUploadButton from './FileUploadButton';
+import SendButton from './SendButton';
 
 const ChatInput = ({ 
   input, 
@@ -108,44 +109,58 @@ const ChatInput = ({
             fontSize: '0.95rem'
           }}
         />
-        <button
-          onClick={() => handleSend()}
-          disabled={!input.trim() && !file}
-          style={{
-            background: (!input.trim() && !file) 
-              ? (theme === 'dark' ? '#3a4050' : '#d8e6ff') 
-              : (theme === 'dark' ? '#4a90e2' : '#4a90e2'),
-            color: (!input.trim() && !file) 
-              ? (theme === 'dark' ? '#6a7383' : '#a0b4d8') 
-              : '#ffffff',
-            border: 'none',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: (!input.trim() && !file) ? 'not-allowed' : 'pointer',
-            fontSize: '1.2rem'
-          }}
-        >
-          ↑
-        </button>
+        
+        {/* Send button component */}
+        <SendButton 
+          handleSend={handleSend}
+          input={input}
+          file={file}
+          theme={theme}
+          viewport={viewport}
+        />
+        
+        {/* Emoji picker button with improved styling */}
         <button
           className="emoji-button"
           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           style={{
-            background: 'transparent',
+            background: showEmojiPicker 
+              ? (theme === 'dark' ? '#3d4352' : '#e6eeff')
+              : (theme === 'dark'
+                  ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 100%)'
+                  : 'linear-gradient(135deg, #e6eeff 0%, #d8e6ff 100%)'),
+            color: showEmojiPicker 
+              ? (theme === 'dark' ? '#f0f4f8' : '#4a90e2') 
+              : (theme === 'dark' ? '#f0f4f8' : '#4a90e2'),
             border: 'none',
             borderRadius: '50%',
-            width: '40px',
-            height: '40px',
+            width: viewport?.isMobile ? '36px' : '40px',
+            height: viewport?.isMobile ? '36px' : '40px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            fontSize: '1.2rem',
-            color: theme === 'dark' ? '#f0f4f8' : '#3a4555'
+            padding: 0,
+            boxShadow: showEmojiPicker 
+              ? '0 0 0 2px rgba(74, 144, 226, 0.2)'
+              : '0 2px 5px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
+            transform: showEmojiPicker ? 'scale(1.1)' : 'scale(1)',
+            marginLeft: '8px'
+          }}
+          onMouseEnter={(e) => {
+            if (!showEmojiPicker) {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!showEmojiPicker) {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+            } else {
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }
           }}
           title="Emoji picker"
         >

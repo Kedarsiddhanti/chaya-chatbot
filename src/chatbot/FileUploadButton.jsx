@@ -6,6 +6,7 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
   const svgRef = useRef(null);
   const fileInputRef = useRef(null);
   const [isRotated, setIsRotated] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Rotate on click
   const handleClick = () => {
@@ -61,11 +62,17 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
       />
       <button
         onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         aria-label="Attach PDF file"
         style={{
           background: theme === 'dark'
-            ? 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
-            : 'linear-gradient(90deg, #4a90e2 0%, #6aa9f0 100%)',
+            ? isHovered 
+              ? 'linear-gradient(90deg, #4a5060 0%, #5a6070 100%)'
+              : 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
+            : isHovered
+              ? 'linear-gradient(90deg, #5aa0f2 0%, #7ab9ff 100%)'
+              : 'linear-gradient(90deg, #4a90e2 0%, #6aa9f0 100%)',
           color: '#fff',
           border: 'none',
           borderRadius: '50%',
@@ -76,8 +83,12 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
           justifyContent: 'center',
           cursor: 'pointer',
           padding: 0,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          marginRight: '0.5rem'
+          boxShadow: isHovered 
+            ? '0 3px 8px rgba(0,0,0,0.15)' 
+            : '0 1px 3px rgba(0,0,0,0.05)',
+          marginRight: '0.5rem',
+          transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
+          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)'
         }}
       >
         <svg
@@ -100,4 +111,5 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
 };
 
 export default FileUploadButton;
+
 
