@@ -19,6 +19,46 @@ const breakpoints = {
   laptop: 1024
 }
 
+// Add AttachButton component inline
+const AttachButton = ({ onClick, theme, isSpinning }) => {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: theme === 'dark'
+          ? 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
+          : 'linear-gradient(90deg, #4a90e2 0%, #6aa9f0 100%)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '50%',
+        width: '2.4rem',
+        height: '2.4rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        padding: 0,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        marginRight: '0.5rem'
+      }}
+    >
+      <svg 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        width="20" 
+        height="20"
+        style={{
+          transition: 'transform 0.5s ease',
+          transform: isSpinning ? 'rotate(45deg)' : 'rotate(0deg)',
+          stroke: theme === 'dark' ? '#d8e6ff' : '#ffffff',
+        }}
+      >
+        <path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </button>
+  );
+};
+
 // Helper function to check current viewport
 const getViewportWidth = () => {
   return window.innerWidth || document.documentElement.clientWidth
@@ -65,6 +105,12 @@ function Chatbot() {
     isMobile: getViewportWidth() <= breakpoints.mobile,
     isTablet: getViewportWidth() <= breakpoints.tablet && getViewportWidth() > breakpoints.mobile
   })
+
+  // Add this state for upload button animation
+  const [uploadButtonRotating, setUploadButtonRotating] = useState(false);
+
+  // Add a ref to track if the file dialog is open
+  const fileDialogOpen = useRef(false);
 
   useEffect(() => {
     if (open && messagesEndRef.current) {
@@ -123,16 +169,28 @@ function Chatbot() {
   const handleFileChange = (e) => {
     const fileObj = e.target.files[0];
     
+    // Mark dialog as closed
+    fileDialogOpen.current = false;
+    
     // Check if file is a PDF
     if (fileObj && fileObj.type !== 'application/pdf') {
       alert('Only PDF files are allowed.');
-      e.target.value = null; // Reset the input
+      e.target.value = null;
+      setUploadButtonRotating(false);
       return;
     }
     
-    setFile(fileObj);
-    setFilePreview(null); // No preview for PDFs
-  }
+    if (fileObj) {
+      setFile(fileObj);
+      setFilePreview(null);
+      // Keep the rotation state true when a file is selected
+      setUploadButtonRotating(true);
+    } else {
+      setFile(null);
+      setFilePreview(null);
+      setUploadButtonRotating(false);
+    }
+  };
   // Handle file upload
   const handleFileUpload = () => {
     if (!file) return
@@ -166,11 +224,17 @@ function Chatbot() {
           file,
           status: 'sent',
           avatar: userAvatar,
-          isPdf: true  // Add a flag to indicate this is a PDF
+          isPdf: true
         },
       ]);
       
-      // Don't reset file state here to allow summarization
+      // Reset file state and explicitly set rotation to false
+      setFile(null);
+      setFilePreview(null);
+      setUploadButtonRotating(false);
+      
+      // Remove the automatic summarization
+      // handleSummarize(); - Remove this line
     }
     
     // Handle text message if not empty
@@ -209,27 +273,32 @@ function Chatbot() {
 
   // Handle summarization for file uploads
   const handleSummarize = async () => {
-  if (!file) {
-    alert("Please upload a file first.");
-    return;
-  }
+    if (!file) {
+      alert("Please upload a file first.");
+      return;
+    }
 
-  const formData = new FormData();
-  formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-  try {
-    const res = await axios.post("http://localhost:5000/summarize", formData);
-    const summary = res.data.summary;
+    try {
+      const res = await axios.post("http://localhost:5000/summarize", formData);
+      const summary = res.data.summary;
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: summary, sender: "bot", time: new Date(), status: "delivered" },
-    ]);
-  } catch (error) {
-    console.error(error);
-    alert("Something went wrong during summarization.");
-  }
-};
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: summary, sender: "bot", time: new Date(), status: "delivered" },
+      ]);
+      
+      // Reset file state after summarization
+      setFile(null);
+      setFilePreview(null);
+      setUploadButtonRotating(false);
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong during summarization.");
+    }
+  };
 
   // Message status simulation
   useEffect(() => {
@@ -361,6 +430,118 @@ function Chatbot() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showEmojiPicker]);
+
+  // Add this function to handle upload button click animation
+  const handleUploadButtonClick = () => {
+    if (!file) {
+      // Start spinning immediately when clicked
+      setUploadButtonRotating(true);
+      
+      // Open the file dialog
+      const fileInput = document.getElementById('file-upload');
+      if (fileInput) {
+        fileInput.click();
+        
+        // Set a timeout to reset the spinning if no file is selected
+        setTimeout(() => {
+          if (!file) {
+            setUploadButtonRotating(false);
+          }
+        }, 3000);
+      }
+    } else {
+      // If a file is already selected, clicking should remove it
+      setFile(null);
+      setFilePreview(null);
+      setUploadButtonRotating(false);
+    }
+  };
+
+  // Add a useEffect to monitor file dialog state
+  useEffect(() => {
+    // Function to check if file dialog is closed
+    const checkFileDialogClosed = () => {
+      // If dialog was open but no file was selected, reset the button
+      if (fileDialogOpen.current && !file) {
+        setUploadButtonRotating(false);
+        fileDialogOpen.current = false;
+      }
+    };
+
+    // Add multiple event listeners to catch dialog close in different scenarios
+    window.addEventListener('focus', checkFileDialogClosed);
+    window.addEventListener('click', checkFileDialogClosed);
+    
+    // Fallback timeout
+    const fallbackTimer = setTimeout(() => {
+      if (fileDialogOpen.current) {
+        setUploadButtonRotating(false);
+        fileDialogOpen.current = false;
+      }
+    }, 3000);
+    
+    return () => {
+      window.removeEventListener('focus', checkFileDialogClosed);
+      window.removeEventListener('click', checkFileDialogClosed);
+      clearTimeout(fallbackTimer);
+    };
+  }, [file]);
+
+  // Add a more robust approach to detect file dialog closure
+  useEffect(() => {
+    // Function to check if file dialog is closed
+    const checkFileDialogClosed = () => {
+      // If dialog was open but no file was selected, reset the button
+      if (fileDialogOpen.current && !file) {
+        setUploadButtonRotating(false);
+        fileDialogOpen.current = false;
+      }
+    };
+
+    // Add multiple event listeners to catch dialog close in different scenarios
+    if (fileDialogOpen.current) {
+      window.addEventListener('focus', checkFileDialogClosed);
+      window.addEventListener('click', checkFileDialogClosed);
+      window.addEventListener('blur', checkFileDialogClosed);
+      document.addEventListener('mousemove', checkFileDialogClosed);
+      
+      // Fallback timeout
+      const fallbackTimer = setTimeout(() => {
+        if (fileDialogOpen.current) {
+          setUploadButtonRotating(false);
+          fileDialogOpen.current = false;
+        }
+      }, 2000);
+      
+      return () => {
+        window.removeEventListener('focus', checkFileDialogClosed);
+        window.removeEventListener('click', checkFileDialogClosed);
+        window.removeEventListener('blur', checkFileDialogClosed);
+        document.removeEventListener('mousemove', checkFileDialogClosed);
+        clearTimeout(fallbackTimer);
+      };
+    }
+  }, [fileDialogOpen.current, file]);
+
+  // Add a direct event listener to the file input element
+  useEffect(() => {
+    const fileInput = document.getElementById('file-upload');
+    
+    const handleCancel = () => {
+      // This will fire when the file dialog is canceled
+      setTimeout(() => {
+        if (fileDialogOpen.current && !file) {
+          setUploadButtonRotating(false);
+          fileDialogOpen.current = false;
+        }
+      }, 100);
+    };
+    
+    if (fileInput) {
+      fileInput.addEventListener('cancel', handleCancel);
+      return () => fileInput.removeEventListener('cancel', handleCancel);
+    }
+  }, [file]);
 
   return (
     
@@ -534,12 +715,14 @@ function Chatbot() {
                   <MessageBubble $sender={msg.sender} style={{
                     background: msg.sender === 'user'
                       ? (theme === 'dark'
-                        ? 'linear-gradient(135deg, #4a6da0 0%, #5a7db0 50%, #6a8dc0 100%)' // Improved dark gradient
-                        : 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%)') // Improved light gradient
+                        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // Dark gray gradient for user in dark mode
+                        : 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%)') // Light blue gradient for user in light mode
                       : (theme === 'dark'
-                        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // Improved dark gradient
-                        : 'linear-gradient(135deg, #ffffff 0%, #f5f8ff 50%, #f0f7ff 100%)'), // Improved light gradient
-                    color: msg.sender === 'user' ? '#fff' : (theme === 'dark' ? '#f0f4f8' : '#3a4555'),
+                        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // Dark gray gradient for bot in dark mode
+                        : 'linear-gradient(135deg, #ffffff 0%, #f5f8ff 50%, #f0f7ff 100%)'), // Light gradient for bot in light mode
+                    color: msg.sender === 'user' 
+                      ? (theme === 'dark' ? '#f0f4f8' : '#fff') // Light text for user in dark mode, white in light mode
+                      : (theme === 'dark' ? '#f0f4f8' : '#3a4555'), // Light text for bot in dark mode, dark in light mode
                     boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
                     position: 'relative',
                     animation: 'fadeInBubble 0.4s',
@@ -547,28 +730,28 @@ function Chatbot() {
                     padding: viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem',
                     maxWidth: viewport.isMobile ? '75%' : '80%',
                     border: msg.sender === 'user'
-                      ? (theme === 'dark' ? '1px solid #5a7db0' : '1px solid #6aa9f0') // Lightened
-                      : (theme === 'dark' ? '1px solid #4a5060' : '1px solid #d8e6ff') // Light blue border
+                      ? (theme === 'dark' ? '1px solid #4a5060' : '1px solid #6aa9f0') // Dark border for user in dark mode
+                      : (theme === 'dark' ? '1px solid #4a5060' : '1px solid #d8e6ff') // Dark border for bot in dark mode
                   }}>
                     {msg.text}
                     {msg.file && (
                       <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
                         {msg.isPdf ? (
                           <span style={{ 
-                            background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
-                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
+                            background: theme === 'dark' ? '#2a2e38' : '#e0eaff', // Darker background in dark mode
+                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Light text in dark mode
                             padding: '0.1rem 0.3rem',
                             borderRadius: 4,
                             fontWeight: 'bold',
                             fontSize: '0.8rem',
                             marginRight: 6,
                             display: 'inline-block',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.03)' // Reduced shadow
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                           }}>PDF</span>
                         ) : (
                           <span role="img" aria-label="file" style={{ 
                             marginRight: 4,
-                            opacity: theme === 'dark' ? 0.8 : 0.6 // Reduced opacity for less contrast
+                            opacity: theme === 'dark' ? 0.8 : 0.6
                           }}>📄</span>
                         )}
                         {msg.fileName}
@@ -578,8 +761,8 @@ function Chatbot() {
                       display: 'block',
                       fontSize: '0.75em',
                       color: msg.sender === 'user'
-                        ? (theme === 'dark' ? '#b3e0ff' : '#e0eaff')
-                        : (theme === 'dark' ? '#aaa' : '#888'),
+                        ? (theme === 'dark' ? '#a0a8b8' : '#e0eaff') // Lighter gray in dark mode
+                        : (theme === 'dark' ? '#a0a8b8' : '#888'), // Lighter gray in dark mode
                       marginTop: 2,
                       textAlign: msg.sender === 'user' ? 'right' : 'left'
                     }}>
@@ -588,7 +771,7 @@ function Chatbot() {
                         <span style={{ 
                           marginLeft: 4, 
                           fontSize: '0.9em',
-                          color: theme === 'dark' ? '#d8e6ff' : '#f0f7ff' // Very light blue, close to white
+                          color: theme === 'dark' ? '#d8e6ff' : '#f0f7ff' // Light blue in dark mode
                         }}>
                           {msg.status === 'sent' && (
                             <span title="Sending" role="img" aria-label="sending">⏱️</span>
@@ -680,34 +863,74 @@ function Chatbot() {
               )}
               <div ref={messagesEndRef} />
             </StyledMessages>
-            {/* Quick replies */}
+            {/* Enhanced Quick replies */}
             {userName && (
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: viewport.isMobile ? '0.4rem' : '0.5rem',
-                padding: viewport.isMobile ? '0.4rem 0.8rem 0.2rem 0.8rem' : '0.5rem 1rem 0.25rem 1rem',
-                background: theme === 'dark' ? '#2a2e38' : '#f0f7ff' // Very light blue
+                justifyContent: 'center',
+                gap: viewport.isMobile ? '0.5rem' : '0.6rem',
+                padding: viewport.isMobile ? '0.6rem 0.8rem' : '0.7rem 1rem',
+                background: theme === 'dark' ? '#2a2e38' : '#f0f7ff',
+                borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff',
+                position: 'relative',
+                zIndex: 2,
+                boxShadow: theme === 'dark' 
+                  ? 'inset 0 1px 3px rgba(0,0,0,0.1)' 
+                  : 'inset 0 1px 3px rgba(0,0,0,0.03)'
               }}>
                 {QUICK_REPLIES.map((reply, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSend(reply)}
                     style={{
-                      background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
-                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)', // Lightened
+                      background: theme === 'dark' 
+                        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 100%)' 
+                        : 'linear-gradient(135deg, #4a90e2 0%, #6aa9f0 100%)',
                       color: '#fff',
                       border: 'none',
-                      borderRadius: 8,
-                      padding: viewport.isMobile ? '0.25rem 0.6rem' : '0.3rem 0.8rem',
-                      fontSize: viewport.isMobile ? '0.85rem' : '0.95rem',
+                      borderRadius: '18px',
+                      padding: viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem',
+                      fontSize: viewport.isMobile ? '0.85rem' : '0.9rem',
                       cursor: 'pointer',
                       fontWeight: 500,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)' // Reduced shadow
+                      whiteSpace: 'nowrap',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      boxShadow: theme === 'dark' 
+                        ? '0 2px 4px rgba(0,0,0,0.2)' 
+                        : '0 2px 6px rgba(74,144,226,0.2)',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = theme === 'dark' 
+                        ? '0 4px 8px rgba(0,0,0,0.3)' 
+                        : '0 4px 10px rgba(74,144,226,0.3)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = theme === 'dark' 
+                        ? '0 2px 4px rgba(0,0,0,0.2)' 
+                        : '0 2px 6px rgba(74,144,226,0.2)';
                     }}
                   >
-                    {reply}
+                    <span style={{
+                      position: 'relative',
+                      zIndex: 2
+                    }}>
+                      {reply}
+                    </span>
+                    <span style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0))',
+                      opacity: theme === 'dark' ? 0.05 : 0.2,
+                      borderRadius: '18px'
+                    }}></span>
                   </button>
                 ))}
               </div>
@@ -757,7 +980,11 @@ function Chatbot() {
                         {file.name}
                       </span>
                       <button
-                        onClick={() => { setFile(null); setFilePreview(null); }}
+                        onClick={() => { 
+                          setFile(null); 
+                          setFilePreview(null); 
+                          setUploadButtonRotating(false);
+                        }}
                         style={{
                           position: 'absolute',
                           top: -8,
@@ -765,17 +992,16 @@ function Chatbot() {
                           width: '18px',
                           height: '18px',
                           borderRadius: '50%',
-                          background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
-                          color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
+                          background: theme === 'dark' ? '#4a5060' : '#e0eaff',
+                          color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
                           border: 'none',
-                          fontSize: '10px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           cursor: 'pointer',
-                          padding: 0,
+                          fontSize: '0.8rem',
                           fontWeight: 'bold',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                          padding: 0
                         }}
                         title="Cancel upload"
                       >
@@ -787,9 +1013,9 @@ function Chatbot() {
                     onClick={handleSummarize}
                     style={{
                       background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Reduced contrast
-                        : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)', // Very light blue, reduced contrast
-                      color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
+                        ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)'
+                        : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)',
+                      color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
                       border: 'none',
                       borderRadius: 8,
                       padding: '0.5rem 1rem',
@@ -797,7 +1023,7 @@ function Chatbot() {
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       fontWeight: 600,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                       marginLeft: 4
                     }}
                   >
@@ -806,7 +1032,7 @@ function Chatbot() {
                 </div>
               )}
               {/* Input area with file upload button inline */}
-              <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '0.8rem' }}>
                 <input
                   id="file-upload"
                   type="file"
@@ -814,59 +1040,26 @@ function Chatbot() {
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    document.getElementById('file-upload').click();
-                  }}
-                  style={{
-                    background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)'
-                      : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)',
-                    color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '2.2rem',
-                    height: '2.2rem',
-                    fontSize: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    padding: 0,
-                    marginRight: '0.5rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                    transition: 'background 0.2s',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                  title="Attach file"
-                >
-                  <div style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <span style={{ 
-                      fontSize: '1.2rem', 
-                      fontWeight: 'bold'
-                    }}>+</span>
-                  </div>
-                </button>
+                <AttachButton 
+                  onClick={handleUploadButtonClick} 
+                  theme={theme} 
+                  isSpinning={uploadButtonRotating} 
+                />
                 <input
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSend()}
                   placeholder={userName ? "Type a message..." : "Enter your name..."}
+                  autoComplete="off"
+                  spellCheck="true"
+                  autoCorrect="off"
+                  autoCapitalize="off"
                   style={{
                     flex: 1,
                     minWidth: 0,
                     marginRight: '0.5rem',
-                    border: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e4ff', // Lightened
-                    background: theme === 'dark' ? '#323742' : '#ffffff', // Lightened
+                    border: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e4ff',
+                    background: theme === 'dark' ? '#323742' : '#ffffff',
                     color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
                     borderRadius: 8,
                     fontSize: viewport.isMobile ? '0.95rem' : '1rem',
@@ -874,19 +1067,31 @@ function Chatbot() {
                     transition: 'border 0.2s'
                   }}
                 />
-                <button onClick={handleSend} style={{
-                  flexShrink: 0,
-                  background: theme === 'dark'
-                    ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
-                    : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)', // Lightened
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: viewport.isMobile ? '0.4rem 0.9rem' : '0.5rem 1.1rem',
-                  fontWeight: 600,
-                  fontSize: viewport.isMobile ? '0.95rem' : '1rem',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)' // Reduced shadow
-                }}>Send</button>
+                <button 
+                  onClick={() => handleSend()} 
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 'auto',
+                    height: 'auto',
+                    transition: 'transform 0.2s',
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={theme === 'dark' ? '#00a884' : '#00a884'} // WhatsApp green color
+                    width="24px"
+                    height="24px"
+                  >
+                    <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
+                  </svg>
+                </button>
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
