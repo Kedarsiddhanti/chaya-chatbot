@@ -12,6 +12,18 @@ import {
   InputArea as StyledInputArea,
 } from './Chatbot.styles'
 
+// Add responsive breakpoints
+const breakpoints = {
+  mobile: 480,
+  tablet: 768,
+  laptop: 1024
+}
+
+// Helper function to check current viewport
+const getViewportWidth = () => {
+  return window.innerWidth || document.documentElement.clientWidth
+}
+
 const BOT_AVATAR = "🤖"
 const DEFAULT_USER_AVATAR = "🧑"
 const QUICK_REPLIES = [
@@ -46,6 +58,13 @@ function Chatbot() {
   const [position, setPosition] = useState({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
   const [dragging, setDragging] = useState(false)
   const dragOffset = useRef({ x: 0, y: 0 })
+
+  // Add state to track viewport size
+  const [viewport, setViewport] = useState({
+    width: getViewportWidth(),
+    isMobile: getViewportWidth() <= breakpoints.mobile,
+    isTablet: getViewportWidth() <= breakpoints.tablet && getViewportWidth() > breakpoints.mobile
+  })
 
   useEffect(() => {
     if (open && messagesEndRef.current) {
@@ -241,17 +260,58 @@ function Chatbot() {
   // Theme toggle
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light')
 
+  // Update viewport state on resize
+  useEffect(() => {
+    const handleResize = () => {
+      const width = getViewportWidth()
+      setViewport({
+        width,
+        isMobile: width <= breakpoints.mobile,
+        isTablet: width <= breakpoints.tablet && width > breakpoints.mobile
+      })
+      
+      // Adjust chat window position based on screen size
+      if (width <= breakpoints.tablet) {
+        // On mobile/tablet, position at bottom
+        setPosition({ 
+          x: 0, 
+          y: window.innerHeight - (viewport.isMobile ? 500 : 520) 
+        })
+      } else {
+        // On desktop, position at bottom right
+        setPosition({ 
+          x: window.innerWidth - 420, 
+          y: window.innerHeight - 520 
+        })
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [viewport.isMobile])
+
   // Reset position when closed
   const handleClose = () => {
     setOpen(false)
-    setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+    
+    // Position based on screen size
+    if (viewport.width <= breakpoints.tablet) {
+      setPosition({ x: 0, y: window.innerHeight })
+    } else {
+      setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+    }
   }
 
   // Handle chat open
   const handleOpen = () => {
     setOpen(true)
-    // Ensure position is correct for the larger size
-    setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+    
+    // Position based on screen size
+    if (viewport.width <= breakpoints.tablet) {
+      setPosition({ x: 0, y: window.innerHeight - (viewport.isMobile ? 500 : 520) })
+    } else {
+      setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+    }
   }
 
   // Theme styles
@@ -270,7 +330,12 @@ function Chatbot() {
         <StyledFloatingButton
           onClick={handleOpen}
           style={{
-            animation: 'pulse 1.5s infinite alternate'
+            animation: 'pulse 1.5s infinite alternate',
+            bottom: viewport.isMobile ? '16px' : '24px',
+            right: viewport.isMobile ? '16px' : '24px',
+            width: viewport.isMobile ? '48px' : '56px',
+            height: viewport.isMobile ? '48px' : '56px',
+            fontSize: viewport.isMobile ? '1.7rem' : '2rem'
           }}
         >
           💬
@@ -279,15 +344,18 @@ function Chatbot() {
       {open && (
         <div style={{
           position: 'fixed',
-          left: position.x,
-          top: position.y,
+          left: viewport.width <= breakpoints.tablet ? 0 : position.x,
+          top: viewport.width <= breakpoints.tablet ? 'auto' : position.y,
+          bottom: viewport.width <= breakpoints.tablet ? 0 : 'auto',
           zIndex: 1000,
-          cursor: dragging ? 'grabbing' : 'grab',
+          cursor: dragging ? 'grabbing' : (viewport.width <= breakpoints.tablet ? 'default' : 'grab'),
           transition: dragging ? 'none' : 'transform 0.2s',
           boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-          borderRadius: 18,
-          width: '400px',
-          height: '500px',
+          borderRadius: viewport.width <= breakpoints.tablet ? 
+            (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18,
+          width: viewport.width <= breakpoints.tablet ? '100%' : '400px',
+          height: viewport.width <= breakpoints.tablet ? 
+            (viewport.isMobile ? '90vh' : '70vh') : '500px',
           background: themeStyles.background || 'rgba(255,255,255,0.95)',
           color: themeStyles.color,
           border: themeStyles.border,
@@ -299,23 +367,25 @@ function Chatbot() {
             width: '100%',
             height: '100%',
             margin: 0,
-            borderRadius: 18
+            borderRadius: viewport.width <= breakpoints.tablet ? 
+              (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18
           }}>
             <Header
               style={{
-                cursor: dragging ? 'grabbing' : 'grab',
+                cursor: viewport.width <= breakpoints.tablet ? 'default' : (dragging ? 'grabbing' : 'grab'),
                 userSelect: 'none',
                 background: theme === 'dark'
                   ? 'linear-gradient(90deg, #23272f 60%, #3a3f4b 100%)'
                   : 'linear-gradient(90deg, #007bff 60%, #00c6ff 100%)',
                 color: '#fff',
                 fontWeight: 600,
-                fontSize: '1.1rem',
+                fontSize: viewport.isMobile ? '1rem' : '1.1rem',
                 letterSpacing: '0.5px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                width: '100%'
+                width: '100%',
+                padding: viewport.isMobile ? '0.8rem 1rem' : '1rem 1.25rem'
               }}
-              onPointerDown={handlePointerDown}
+              onPointerDown={viewport.width <= breakpoints.tablet ? null : handlePointerDown}
             >
               <span>
                 <span style={{ 
@@ -399,19 +469,18 @@ function Chatbot() {
             <StyledMessages style={{
               background: theme === 'dark'
                 ? 'repeating-linear-gradient(135deg, #23272f, #23272f 20px, #2a2f3a 20px, #2a2f3a 40px)'
-                : 'repeating-linear-gradient(135deg, #f7f7f7, #f7f7f7 20px, #f0f4ff 20px, #f0f4ff 40px)'
+                : 'repeating-linear-gradient(135deg, #f7f7f7, #f7f7f7 20px, #f0f4ff 20px, #f0f4ff 40px)',
+              padding: viewport.isMobile ? '0.8rem' : '1rem'
             }}>
               {messages.map((msg, i) => (
-                
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'flex-end',
                   marginBottom: 2,
                   flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
                 }}>
-                  
                   <div style={{
-                    fontSize: '1.3rem',
+                    fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
                     margin: msg.sender === 'user' ? '0 0 0 8px' : '0 8px 0 0',
                     userSelect: 'none'
                   }}>
@@ -428,7 +497,10 @@ function Chatbot() {
                     color: msg.sender === 'user' ? '#fff' : (theme === 'dark' ? '#fafdff' : '#222'),
                     boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                     position: 'relative',
-                    animation: 'fadeInBubble 0.4s'
+                    animation: 'fadeInBubble 0.4s',
+                    fontSize: viewport.isMobile ? '0.95rem' : '1rem',
+                    padding: viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem',
+                    maxWidth: viewport.isMobile ? '75%' : '80%'
                   }}>
                     {msg.text}
                     {msg.file && (
@@ -529,8 +601,8 @@ function Chatbot() {
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem 0.25rem 1rem',
+                gap: viewport.isMobile ? '0.4rem' : '0.5rem',
+                padding: viewport.isMobile ? '0.4rem 0.8rem 0.2rem 0.8rem' : '0.5rem 1rem 0.25rem 1rem',
                 background: theme === 'dark' ? '#23272f' : '#fafdff'
               }}>
                 {QUICK_REPLIES.map((reply, idx) => (
@@ -544,8 +616,8 @@ function Chatbot() {
                       color: '#fff',
                       border: 'none',
                       borderRadius: 8,
-                      padding: '0.3rem 0.8rem',
-                      fontSize: '0.95rem',
+                      padding: viewport.isMobile ? '0.25rem 0.6rem' : '0.3rem 0.8rem',
+                      fontSize: viewport.isMobile ? '0.85rem' : '0.95rem',
                       cursor: 'pointer',
                       fontWeight: 500,
                       boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
@@ -557,10 +629,11 @@ function Chatbot() {
               </div>
             )}
             <StyledInputArea style={{
-              maxWidth: 400,
+              maxWidth: viewport.width <= breakpoints.tablet ? '100%' : 400,
               flexDirection: 'column',
               gap: 0,
-              background: theme === 'dark' ? '#23272f' : 'transparent'
+              background: theme === 'dark' ? '#23272f' : 'transparent',
+              padding: viewport.isMobile ? '0.6rem' : '0.75rem'
             }}>
               {/* First line: input and send */}
               <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -577,7 +650,8 @@ function Chatbot() {
                     background: theme === 'dark' ? '#23272f' : '#fafdff',
                     color: theme === 'dark' ? '#fafdff' : '#222',
                     borderRadius: 8,
-                    fontSize: '1rem',
+                    fontSize: viewport.isMobile ? '0.95rem' : '1rem',
+                    padding: viewport.isMobile ? '0.4rem' : '0.5rem',
                     transition: 'border 0.2s'
                   }}
                 />
@@ -589,9 +663,9 @@ function Chatbot() {
                   color: '#fff',
                   border: 'none',
                   borderRadius: 8,
-                  padding: '0.5rem 1.1rem',
+                  padding: viewport.isMobile ? '0.4rem 0.9rem' : '0.5rem 1.1rem',
                   fontWeight: 600,
-                  fontSize: '1rem',
+                  fontSize: viewport.isMobile ? '0.95rem' : '1rem',
                   boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
                 }}>Send</button>
                 <button
@@ -605,9 +679,9 @@ function Chatbot() {
                     color: '#fff',
                     border: 'none',
                     borderRadius: '50%',
-                    width: '2rem',
-                    height: '2rem',
-                    fontSize: '1.2rem',
+                    width: viewport.isMobile ? '1.8rem' : '2rem',
+                    height: viewport.isMobile ? '1.8rem' : '2rem',
+                    fontSize: viewport.isMobile ? '1.1rem' : '1.2rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -622,13 +696,17 @@ function Chatbot() {
                   <div style={{
                     position: 'absolute',
                     bottom: '3.5rem',
-                    right: 0,
-                    zIndex: 9999
+                    right: viewport.isMobile ? '0' : '0',
+                    zIndex: 9999,
+                    width: viewport.isMobile ? '100%' : 'auto',
+                    maxWidth: viewport.isMobile ? '100%' : '320px'
                   }}>
                     <EmojiPicker
                       theme={theme}
                       onEmojiClick={handleEmojiClick}
                       autoFocusSearch={false}
+                      width={viewport.isMobile ? '100%' : '320px'}
+                      height={viewport.isMobile ? '300px' : '400px'}
                     />
                   </div>
                 )}
