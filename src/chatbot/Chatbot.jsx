@@ -329,18 +329,14 @@ function Chatbot() {
 
   // Add a function to handle clicking outside the emoji picker
   const handleClickOutside = (e) => {
-    if (showEmojiPicker && !e.target.closest('.emoji-picker-container')) {
+    if (showEmojiPicker && !e.target.closest('.emoji-picker-container') && !e.target.closest('.emoji-button')) {
       setShowEmojiPicker(false);
     }
   };
 
   // Add event listener for clicking outside
   useEffect(() => {
-    if (showEmojiPicker) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -876,6 +872,7 @@ function Chatbot() {
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="emoji-button"
                   style={{
                     marginLeft: '0.5rem',
                     background: showEmojiPicker 
@@ -908,6 +905,20 @@ function Chatbot() {
                 </button>
               </div>
             </StyledInputArea>
+            {/* Emoji picker */}
+            {showEmojiPicker && (
+              <div className="emoji-picker-container" style={{
+                position: 'absolute',
+                bottom: '70px',
+                right: '10px',
+                zIndex: 10,
+                boxShadow: '0 5px 20px rgba(0,0,0,0.15)',
+                borderRadius: '10px',
+                overflow: 'hidden'
+              }}>
+                <EmojiPicker onEmojiClick={handleEmojiClick} height={350} width={320} />
+              </div>
+            )}
           </StyledChatWindow>
         </div>
       )}
