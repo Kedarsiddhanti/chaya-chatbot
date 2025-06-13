@@ -657,9 +657,80 @@ function Chatbot() {
                 </button>
                 {file && (
                   <>
-                    {filePreview && file.type.startsWith('image/') && (
-                      <img src={filePreview} alt="preview" style={{ maxWidth: 60, maxHeight: 40, borderRadius: 6, marginRight: 8 }} />
-                    )}
+                    <div style={{ position: 'relative', marginRight: 12 }}>
+                      {filePreview && file.type.startsWith('image/') ? (
+                        <>
+                          <img src={filePreview} alt="preview" style={{ maxWidth: 60, maxHeight: 40, borderRadius: 6 }} />
+                          <button
+                            onClick={() => { setFile(null); setFilePreview(null); }}
+                            style={{
+                              position: 'absolute',
+                              top: -8,
+                              right: -8,
+                              width: '18px',
+                              height: '18px',
+                              borderRadius: '50%',
+                              background: '#ff3b30',
+                              color: 'white',
+                              border: 'none',
+                              fontSize: '10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              padding: 0,
+                              fontWeight: 'bold',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                            }}
+                            title="Cancel upload"
+                          >
+                            ×
+                          </button>
+                        </>
+                      ) : (
+                        <div style={{ position: 'relative' }}>
+                          <span style={{
+                            fontSize: '0.9rem',
+                            maxWidth: 100,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            background: theme === 'dark' ? '#23272f' : '#fafdff',
+                            borderRadius: 6,
+                            padding: '0.2rem 0.5rem',
+                            display: 'inline-block'
+                          }}>
+                            <span role="img" aria-label="file" style={{ marginRight: 4 }}>📄</span>
+                            {file.name}
+                          </span>
+                          <button
+                            onClick={() => { setFile(null); setFilePreview(null); }}
+                            style={{
+                              position: 'absolute',
+                              top: -8,
+                              right: -8,
+                              width: '18px',
+                              height: '18px',
+                              borderRadius: '50%',
+                              background: '#ff3b30',
+                              color: 'white',
+                              border: 'none',
+                              fontSize: '10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              padding: 0,
+                              fontWeight: 'bold',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                            }}
+                            title="Cancel upload"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <button
                       onClick={handleSummarize}
                       style={{
@@ -674,25 +745,12 @@ function Chatbot() {
                         cursor: 'pointer',
                         whiteSpace: 'nowrap',
                         fontWeight: 600,
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+                        marginLeft: 4
                       }}
                     >
                       Summarize
                     </button>
-
-                    <span style={{
-                      fontSize: '0.9rem',
-                      maxWidth: 100,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      background: theme === 'dark' ? '#23272f' : '#fafdff',
-                      borderRadius: 6,
-                      padding: '0.2rem 0.5rem'
-                    }}>
-                      <span role="img" aria-label="file" style={{ marginRight: 4 }}>📄</span>
-                      {file.name}
-                    </span>
                   </>
                 )}
               </div>
