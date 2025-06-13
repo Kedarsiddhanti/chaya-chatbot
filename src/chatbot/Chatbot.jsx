@@ -141,19 +141,17 @@ function Chatbot() {
       setMessages((msgs) => [
         ...msgs,
         {
-          text: `uploaded file: ${file.name}`,
+          text: `uploaded PDF: ${file.name}`,
           sender: 'user',
           time: new Date(),
           file,
-          filePreview,
           status: 'sent',
-          avatar: userAvatar
+          avatar: userAvatar,
+          isPdf: true  // Add a flag to indicate this is a PDF
         },
       ]);
       
       // Don't reset file state here to allow summarization
-      // setFile(null);
-      // setFilePreview(null);
     }
     
     // Handle text message if not empty
@@ -435,10 +433,21 @@ function Chatbot() {
                     {msg.text}
                     {msg.file && (
                       <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
-                        <span role="img" aria-label="file" style={{ marginRight: 4 }}>📄</span>
-                        {msg.filePreview && msg.file.type.startsWith('image/') ? (
-                          <img src={msg.filePreview} alt="preview" style={{ maxWidth: 80, maxHeight: 60, borderRadius: 6, marginTop: 4 }} />
-                        ) : msg.file.name}
+                        {msg.isPdf ? (
+                          <span style={{ 
+                            background: '#ff0000',
+                            color: 'white',
+                            padding: '0.1rem 0.3rem',
+                            borderRadius: 4,
+                            fontWeight: 'bold',
+                            fontSize: '0.8rem',
+                            marginRight: 6,
+                            display: 'inline-block'
+                          }}>PDF</span>
+                        ) : (
+                          <span role="img" aria-label="file" style={{ marginRight: 4 }}>📄</span>
+                        )}
+                        {msg.file.name}
                       </span>
                     )}
                     <span style={{
@@ -629,6 +638,7 @@ function Chatbot() {
                 <input
                   id="file-upload"
                   type="file"
+                  accept="application/pdf"
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
@@ -660,78 +670,56 @@ function Chatbot() {
                 {file && (
                   <>
                     <div style={{ position: 'relative', marginRight: 12 }}>
-                      {filePreview && file.type.startsWith('image/') ? (
-                        <>
-                          <img src={filePreview} alt="preview" style={{ maxWidth: 60, maxHeight: 40, borderRadius: 6 }} />
-                          <button
-                            onClick={() => { setFile(null); setFilePreview(null); }}
-                            style={{
-                              position: 'absolute',
-                              top: -8,
-                              right: -8,
-                              width: '18px',
-                              height: '18px',
-                              borderRadius: '50%',
-                              background: '#ff3b30',
-                              color: 'white',
-                              border: 'none',
-                              fontSize: '10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              padding: 0,
-                              fontWeight: 'bold',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                            }}
-                            title="Cancel upload"
-                          >
-                            ×
-                          </button>
-                        </>
-                      ) : (
-                        <div style={{ position: 'relative' }}>
-                          <span style={{
-                            fontSize: '0.9rem',
-                            maxWidth: 100,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            background: theme === 'dark' ? '#23272f' : '#fafdff',
-                            borderRadius: 6,
-                            padding: '0.2rem 0.5rem',
+                      <div style={{ position: 'relative' }}>
+                        <span style={{
+                          fontSize: '0.9rem',
+                          maxWidth: 100,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          background: theme === 'dark' ? '#23272f' : '#fafdff',
+                          borderRadius: 6,
+                          padding: '0.2rem 0.5rem',
+                          display: 'inline-block'
+                        }}>
+                          <span style={{ 
+                            background: '#ff0000',
+                            color: 'white',
+                            padding: '0.1rem 0.3rem',
+                            borderRadius: 4,
+                            fontWeight: 'bold',
+                            fontSize: '0.8rem',
+                            marginRight: 6,
                             display: 'inline-block'
-                          }}>
-                            <span role="img" aria-label="file" style={{ marginRight: 4 }}>📄</span>
-                            {file.name}
-                          </span>
-                          <button
-                            onClick={() => { setFile(null); setFilePreview(null); }}
-                            style={{
-                              position: 'absolute',
-                              top: -8,
-                              right: -8,
-                              width: '18px',
-                              height: '18px',
-                              borderRadius: '50%',
-                              background: '#ff3b30',
-                              color: 'white',
-                              border: 'none',
-                              fontSize: '10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              padding: 0,
-                              fontWeight: 'bold',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                            }}
-                            title="Cancel upload"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      )}
+                          }}>PDF</span>
+                          {file.name}
+                        </span>
+                        <button
+                          onClick={() => { setFile(null); setFilePreview(null); }}
+                          style={{
+                            position: 'absolute',
+                            top: -8,
+                            right: -8,
+                            width: '18px',
+                            height: '18px',
+                            borderRadius: '50%',
+                            background: '#ff3b30',
+                            color: 'white',
+                            border: 'none',
+                            fontSize: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            padding: 0,
+                            fontWeight: 'bold',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                          }}
+                          title="Cancel upload"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                     <button
                       onClick={handleSummarize}
