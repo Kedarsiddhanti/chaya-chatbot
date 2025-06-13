@@ -353,7 +353,7 @@ function Chatbot() {
         <StyledFloatingButton
           onClick={handleOpen}
           style={{
-            animation: 'pulse 1.5s infinite alternate',
+            animation: 'pulse 0.8s infinite alternate',
             bottom: viewport.isMobile ? '16px' : '24px',
             right: viewport.isMobile ? '16px' : '24px',
             width: viewport.isMobile ? '48px' : '56px',
@@ -421,7 +421,7 @@ function Chatbot() {
                 <span style={{ 
                   fontSize: '1.5rem', 
                   marginRight: 8,
-                  animation: 'botIconPulsate 2s ease-in-out infinite',
+                  animation: 'botIconPulsate 1s ease-in-out infinite',
                   display: 'inline-block',
                   transformOrigin: 'center'
                 }}>🤖</span>
@@ -913,6 +913,10 @@ function Chatbot() {
       )}
       <style>
         {`
+          @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+            100% { transform: scale(1.08); box-shadow: 0 6px 16px rgba(74,144,226,0.35); }
+          }
           @keyframes whatsappSpin {
             0% { transform: rotate(0deg); }
             80% { transform: rotate(385deg); }
@@ -929,6 +933,16 @@ function Chatbot() {
           @keyframes blink {
             0%, 100% { opacity: 0.8; }
             50% { opacity: 0.3; }
+          }
+          @keyframes botIconPulsate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+          }
+          @keyframes subtle-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
           }
         `}
       </style>
