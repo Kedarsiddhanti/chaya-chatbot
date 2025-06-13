@@ -12,7 +12,7 @@ const fadeSlideIn = keyframes`
   }
 `
 
-export const ChatbotContainer = styled.div`;
+export const ChatbotContainer = styled.div`
   z-index: 1000;
 `
 

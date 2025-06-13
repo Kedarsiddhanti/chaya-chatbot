@@ -219,7 +219,7 @@ function Chatbot() {
   // Reset position when closed
   const handleClose = () => {
     setOpen(false)
-    setPosition({ x: window.innerWidth - 344, y: window.innerHeight - 444 })
+    setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
   }
 
   // Theme styles
@@ -254,6 +254,8 @@ function Chatbot() {
           transition: dragging ? 'none' : 'transform 0.2s',
           boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
           borderRadius: 18,
+          width: '400px',
+          height: '500px',
           background: themeStyles.background || 'rgba(255,255,255,0.95)',
           color: themeStyles.color,
           border: themeStyles.border,
@@ -482,7 +484,7 @@ function Chatbot() {
               </div>
             )}
             <StyledInputArea style={{
-              maxWidth: 320,
+              maxWidth: 400,
               flexDirection: 'column',
               gap: 0,
               background: theme === 'dark' ? '#23272f' : 'transparent'
