@@ -702,15 +702,146 @@ function Chatbot() {
               width: '100%',
               maxWidth: '100%',
               flexDirection: 'column',
-              gap: 0,
+              gap: 8,
               background: theme === 'dark' ? '#2a2e38' : '#f5faff', // Very light blue
               padding: viewport.isMobile ? '0.6rem' : '0.75rem',
               borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff', // Light blue border
               borderBottomLeftRadius: viewport.width <= breakpoints.tablet ? 0 : '18px',
               borderBottomRightRadius: viewport.width <= breakpoints.tablet ? 0 : '18px'
             }}>
-              {/* First line: input and send */}
+              {/* File preview and summarize button */}
+              {file && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  width: '100%',
+                  marginBottom: '0.5rem'
+                }}>
+                  <div style={{ position: 'relative', marginRight: 12 }}>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{
+                        fontSize: '0.9rem',
+                        maxWidth: 100,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        background: theme === 'dark' ? '#23272f' : '#fafdff',
+                        borderRadius: 6,
+                        padding: '0.2rem 0.5rem',
+                        display: 'inline-block'
+                      }}>
+                        <span style={{ 
+                          background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
+                          color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
+                          padding: '0.1rem 0.3rem',
+                          borderRadius: 4,
+                          fontWeight: 'bold',
+                          fontSize: '0.8rem',
+                          marginRight: 6,
+                          display: 'inline-block'
+                        }}>PDF</span>
+                        {file.name}
+                      </span>
+                      <button
+                        onClick={() => { setFile(null); setFilePreview(null); }}
+                        style={{
+                          position: 'absolute',
+                          top: -8,
+                          right: -8,
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
+                          color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
+                          border: 'none',
+                          fontSize: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          padding: 0,
+                          fontWeight: 'bold',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                        }}
+                        title="Cancel upload"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSummarize}
+                    style={{
+                      background: theme === 'dark'
+                        ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Reduced contrast
+                        : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)', // Very light blue, reduced contrast
+                      color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '0.5rem 1rem',
+                      fontSize: '1rem',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      fontWeight: 600,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
+                      marginLeft: 4
+                    }}
+                  >
+                    Summarize
+                  </button>
+                </div>
+              )}
+              {/* Input area with file upload button inline */}
               <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    document.getElementById('file-upload').click();
+                  }}
+                  style={{
+                    background: theme === 'dark'
+                      ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)'
+                      : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)',
+                    color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '2.2rem',
+                    height: '2.2rem',
+                    fontSize: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    padding: 0,
+                    marginRight: '0.5rem',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    transition: 'background 0.2s',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  title="Attach file"
+                >
+                  <div style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ 
+                      fontSize: '1.2rem', 
+                      fontWeight: 'bold'
+                    }}>+</span>
+                  </div>
+                </button>
                 <input
                   value={input}
                   onChange={e => setInput(e.target.value)}
@@ -775,213 +906,6 @@ function Chatbot() {
                 >
                   {showEmojiPicker ? '✕' : '😊'}
                 </button>
-                {showEmojiPicker && (
-                  <>
-                    {viewport.width > breakpoints.mobile && (
-                      <div 
-                        style={{
-                          position: 'fixed',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          zIndex: 9998
-                        }}
-                        onClick={() => setShowEmojiPicker(false)}
-                      />
-                    )}
-                    <div 
-                      className="emoji-picker-container"
-                      style={{
-                        position: 'absolute',
-                        bottom: viewport.isMobile ? '4.5rem' : '3.5rem',
-                        right: viewport.isMobile ? '0' : '0',
-                        zIndex: 9999,
-                        width: viewport.isMobile ? '100%' : 'auto',
-                        maxWidth: viewport.isMobile ? '100%' : '320px',
-                        boxShadow: '0 -2px 10px rgba(0,0,0,0.15)',
-                        borderRadius: viewport.isMobile ? '16px 16px 0 0' : '12px',
-                        overflow: 'hidden',
-                        border: theme === 'dark' ? '1px solid #3a3f4b' : '1px solid #e0eaff',
-                        animation: viewport.isMobile ? 'slideUpFade 0.3s ease-out' : 'fadeIn 0.2s'
-                      }}
-                    >
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '0.5rem 0.75rem',
-                        background: theme === 'dark' ? '#23272f' : '#f0f4ff',
-                        borderBottom: theme === 'dark' ? '1px solid #3a3f4b' : '1px solid #e0eaff'
-                      }}>
-                        <span style={{ 
-                          fontWeight: 'bold', 
-                          fontSize: viewport.isMobile ? '0.9rem' : '1rem',
-                          color: theme === 'dark' ? '#fafdff' : '#333'
-                        }}>
-                          Select Emoji
-                        </span>
-                        <button
-                          onClick={() => setShowEmojiPicker(false)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            fontSize: '1.2rem',
-                            cursor: 'pointer',
-                            color: theme === 'dark' ? '#fafdff' : '#333',
-                            padding: '0.25rem'
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      <EmojiPicker
-                        theme={theme}
-                        onEmojiClick={handleEmojiClick}
-                        autoFocusSearch={false}
-                        width={viewport.isMobile ? '100%' : '320px'}
-                        height={viewport.isMobile ? '300px' : '350px'}
-                        searchPlaceHolder="Search emoji..."
-                        previewConfig={{
-                          showPreview: viewport.isMobile ? false : true,
-                          defaultCaption: 'Click to add',
-                          defaultEmoji: '😊'
-                        }}
-                        skinTonesDisabled={viewport.isMobile}
-                        searchDisabled={viewport.isMobile}
-                        lazyLoadEmojis={true}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-              {/* Second line: + icon and upload */}
-              <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.5rem', width: '100%' }}>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    document.getElementById('file-upload').click();
-                  }}
-                  style={{
-                    background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)'
-                      : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)',
-                    color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '1.8rem',
-                    height: '1.8rem',
-                    fontSize: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    padding: 0,
-                    marginRight: '0.5rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                    transition: 'background 0.2s',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                  title="Attach file"
-                >
-                  <div style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <span style={{ 
-                      fontSize: '1.2rem', 
-                      fontWeight: 'bold'
-                    }}>+</span>
-                  </div>
-                </button>
-                {file && (
-                  <>
-                    <div style={{ position: 'relative', marginRight: 12 }}>
-                      <div style={{ position: 'relative' }}>
-                        <span style={{
-                          fontSize: '0.9rem',
-                          maxWidth: 100,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          background: theme === 'dark' ? '#23272f' : '#fafdff',
-                          borderRadius: 6,
-                          padding: '0.2rem 0.5rem',
-                          display: 'inline-block'
-                        }}>
-                          <span style={{ 
-                            background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
-                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
-                            padding: '0.1rem 0.3rem',
-                            borderRadius: 4,
-                            fontWeight: 'bold',
-                            fontSize: '0.8rem',
-                            marginRight: 6,
-                            display: 'inline-block'
-                          }}>PDF</span>
-                          {file.name}
-                        </span>
-                        <button
-                          onClick={() => { setFile(null); setFilePreview(null); }}
-                          style={{
-                            position: 'absolute',
-                            top: -8,
-                            right: -8,
-                            width: '18px',
-                            height: '18px',
-                            borderRadius: '50%',
-                            background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
-                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
-                            border: 'none',
-                            fontSize: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            padding: 0,
-                            fontWeight: 'bold',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                          }}
-                          title="Cancel upload"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      onClick={handleSummarize}
-                      style={{
-                        background: theme === 'dark'
-                          ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Reduced contrast
-                          : 'linear-gradient(90deg, #d8e6ff 70%, #e6eeff 100%)', // Very light blue, reduced contrast
-                        color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '0.5rem 1rem',
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        fontWeight: 600,
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
-                        marginLeft: 4
-                      }}
-                    >
-                      Summarize
-                    </button>
-                  </>
-                )}
               </div>
             </StyledInputArea>
           </StyledChatWindow>
