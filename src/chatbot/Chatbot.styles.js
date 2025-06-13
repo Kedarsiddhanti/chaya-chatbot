@@ -65,6 +65,7 @@ export const Header = styled.div`
   border-top-left-radius: 22px;
   border-top-right-radius: 22px;
   border-bottom: 1.5px solid #e0eaff;
+  width: 100%;
 `
 
 export const CloseButton = styled.button`

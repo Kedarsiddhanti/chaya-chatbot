@@ -43,7 +43,7 @@ function Chatbot() {
   const messagesEndRef = useRef(null)
 
   // Position state for the chat window (bottom right)
-  const [position, setPosition] = useState({ x: window.innerWidth - 344, y: window.innerHeight - 444 })
+  const [position, setPosition] = useState({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
   const [dragging, setDragging] = useState(false)
   const dragOffset = useRef({ x: 0, y: 0 })
 
@@ -222,6 +222,13 @@ function Chatbot() {
     setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
   }
 
+  // Handle chat open
+  const handleOpen = () => {
+    setOpen(true)
+    // Ensure position is correct for the larger size
+    setPosition({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+  }
+
   // Theme styles
   const themeStyles = theme === 'dark'
     ? {
@@ -236,7 +243,7 @@ function Chatbot() {
     <ChatbotContainer style={{ position: 'static' }}>
       {!open && (
         <StyledFloatingButton
-          onClick={() => setOpen(true)}
+          onClick={handleOpen}
           style={{
             animation: 'bounce 1.2s infinite alternate'
           }}
@@ -273,7 +280,8 @@ function Chatbot() {
                 fontWeight: 600,
                 fontSize: '1.1rem',
                 letterSpacing: '0.5px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                width: '100%'
               }}
               onPointerDown={handlePointerDown}
             >
