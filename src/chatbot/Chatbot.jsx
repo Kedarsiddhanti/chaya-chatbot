@@ -132,36 +132,61 @@ function Chatbot() {
 
   // Handle send
   const handleSend = (msgText = null) => {
-    const text = msgText !== null ? msgText : input
-    if (!text.trim()) return
-    const now = new Date()
-    setMessages((msgs) => [
-      ...msgs,
-      { text, sender: 'user', time: now, status: 'sent', avatar: userAvatar }
-    ])
-    if (!userName) {
-      setUserName(text.trim())
-      setInput('')
-      setBotTyping(true)
+    const text = msgText !== null ? msgText : input;
+    
+    // Handle file upload if a file is selected
+    if (file) {
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          text: `uploaded file: ${file.name}`,
+          sender: 'user',
+          time: new Date(),
+          file,
+          filePreview,
+          status: 'sent',
+          avatar: userAvatar
+        },
+      ]);
+      
+      // Don't reset file state here to allow summarization
+      // setFile(null);
+      // setFilePreview(null);
+    }
+    
+    // Handle text message if not empty
+    if (text.trim()) {
+      const now = new Date();
+      setMessages((msgs) => [
+        ...msgs,
+        { text, sender: 'user', time: now, status: 'sent', avatar: userAvatar }
+      ]);
+      
+      if (!userName) {
+        setUserName(text.trim());
+        setInput('');
+        setBotTyping(true);
+        setTimeout(() => {
+          setMessages((msgs) => [
+            ...msgs,
+            { text: `Nice to meet you, ${text.trim()}! How can I help you today?`, sender: 'bot', time: new Date(), status: 'delivered' },
+          ]);
+          setBotTyping(false);
+        }, 1200);
+        return;
+      }
+      
+      setInput('');
+      setBotTyping(true);
       setTimeout(() => {
         setMessages((msgs) => [
           ...msgs,
-          { text: `Nice to meet you, ${text.trim()}! How can I help you today?`, sender: 'bot', time: new Date(), status: 'delivered' },
-        ])
-        setBotTyping(false)
-      }, 1200)
-      return
+          { text: `You said: ${text}`, sender: 'bot', time: new Date(), status: 'delivered' },
+        ]);
+        setBotTyping(false);
+      }, 1200);
     }
-    setInput('')
-    setBotTyping(true)
-    setTimeout(() => {
-      setMessages((msgs) => [
-        ...msgs,
-        { text: `You said: ${text}`, sender: 'bot', time: new Date(), status: 'delivered' },
-      ])
-      setBotTyping(false)
-    }, 1200)
-  }
+  };
 
   // Handle summarization for file uploads
   const handleSummarize = async () => {
@@ -635,26 +660,6 @@ function Chatbot() {
                     {filePreview && file.type.startsWith('image/') && (
                       <img src={filePreview} alt="preview" style={{ maxWidth: 60, maxHeight: 40, borderRadius: 6, marginRight: 8 }} />
                     )}
-                    <button
-                      onClick={handleFileUpload}
-                      style={{
-                        background: theme === 'dark'
-                          ? 'linear-gradient(90deg, #0056b3 70%, #00aaff 100%)'
-                          : 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '0.5rem 1rem',
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        marginRight: '0.5rem',
-                        fontWeight: 600,
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
-                      }}
-                    >
-                      Upload
-                    </button>
                     <button
                       onClick={handleSummarize}
                       style={{
