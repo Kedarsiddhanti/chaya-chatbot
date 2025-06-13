@@ -102,15 +102,17 @@ function Chatbot() {
 
   // Handle file preview
   const handleFileChange = (e) => {
-    const fileObj = e.target.files[0]
-    setFile(fileObj)
-    if (fileObj && fileObj.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (ev) => setFilePreview(ev.target.result)
-      reader.readAsDataURL(fileObj)
-    } else {
-      setFilePreview(null)
+    const fileObj = e.target.files[0];
+    
+    // Check if file is a PDF
+    if (fileObj && fileObj.type !== 'application/pdf') {
+      alert('Only PDF files are allowed.');
+      e.target.value = null; // Reset the input
+      return;
     }
+    
+    setFile(fileObj);
+    setFilePreview(null); // No preview for PDFs
   }
   // Handle file upload
   const handleFileUpload = () => {
