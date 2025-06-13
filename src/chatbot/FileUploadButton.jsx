@@ -71,8 +71,8 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
               ? 'linear-gradient(90deg, #4a5060 0%, #5a6070 100%)'
               : 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
             : isHovered
-              ? 'linear-gradient(90deg, #5aa0f2 0%, #7ab9ff 100%)'
-              : 'linear-gradient(90deg, #4a90e2 0%, #6aa9f0 100%)',
+              ? 'linear-gradient(90deg, rgb(152, 195, 244) 0%, rgb(143, 194, 252) 100%)'
+              : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)',
           color: '#fff',
           border: 'none',
           borderRadius: '50%',
@@ -111,5 +111,7 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
 };
 
 export default FileUploadButton;
+
+
 
 

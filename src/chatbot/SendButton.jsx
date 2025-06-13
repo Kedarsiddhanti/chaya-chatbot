@@ -27,7 +27,7 @@ const SendButton = ({
           ? (theme === 'dark' ? '#3a4050' : '#d8e6ff') 
           : (theme === 'dark' 
               ? 'linear-gradient(135deg, #4a90e2 0%, #6aa9f0 100%)' 
-              : 'linear-gradient(135deg, #4a90e2 0%, #6aa9f0 100%)'),
+              : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)'),
         color: isDisabled 
           ? (theme === 'dark' ? '#6a7383' : '#a0b4d8') 
           : '#ffffff',
@@ -44,15 +44,6 @@ const SendButton = ({
         boxShadow: isDisabled 
           ? 'none' 
           : '0 2px 5px rgba(0,0,0,0.1)',
-        transition: 'all 0.2s ease',
-        zIndex: 5,
-        position: 'relative',
-        padding: 0,
-        margin: 0,
-        flexShrink: 0,
-        touchAction: 'manipulation',
-        WebkitTapHighlightColor: 'transparent',
-        outline: 'none'
       }}
       onMouseEnter={(e) => {
         if (!isDisabled) {
@@ -97,3 +88,6 @@ const SendButton = ({
 };
 
 export default SendButton;
+
+
+

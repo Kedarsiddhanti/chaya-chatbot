@@ -4,11 +4,11 @@ import styled from 'styled-components';
 // Create a styled button component with media queries
 const ResponsiveButton = styled.button`
   background: ${props => props.showEmojiPicker 
-    ? (props.theme === 'dark' ? '#3d4352' : '#e6eeff')
+    ? (props.theme === 'dark' ? '#3d4352' : 'rgba(142, 185, 234, 0.3)')
     : (props.theme === 'dark'
         ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 100%)'
-        : 'linear-gradient(135deg, #e6eeff 0%, #d8e6ff 100%)')};
-  color: ${props => props.theme === 'dark' ? '#f0f4f8' : '#4a90e2'};
+        : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)')};
+  color: ${props => props.theme === 'dark' ? '#f0f4f8' : '#ffffff'};
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -21,7 +21,7 @@ const ResponsiveButton = styled.button`
   cursor: pointer;
   padding: 0;
   box-shadow: ${props => props.showEmojiPicker 
-    ? '0 0 0 2px rgba(74, 144, 226, 0.2)'
+    ? '0 0 0 2px rgba(142, 185, 234, 0.2)'
     : '0 2px 5px rgba(0,0,0,0.1)'};
   transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   transform: ${props => props.showEmojiPicker ? 'scale(1.1)' : 'scale(1)'};
@@ -66,4 +66,6 @@ const EmojiPickerButton = ({
 };
 
 export default EmojiPickerButton;
+
+
 

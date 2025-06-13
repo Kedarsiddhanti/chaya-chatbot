@@ -1,20 +1,21 @@
-import axios from 'axios'
 import React, { useState, useRef, useEffect } from 'react'
 import EmojiPicker from 'emoji-picker-react'
 import {
   ChatbotContainer,
-  FloatingButton as StyledFloatingButton,
-  ChatWindow as StyledChatWindow,
+  FloatingButton,
+  ChatWindow,
   Header,
   CloseButton,
-  Messages as StyledMessages,
+  Messages,
   MessageBubble,
-  InputArea as StyledInputArea,
+  InputArea,
 } from './Chatbot.styles'
 import FileUploadButton from './FileUploadButton'
 import QuickReplies from './QuickReplies'
 import { summarizePdf } from './SummarizeService'
 import SendButton from './SendButton'
+import ChatInput from './ChatInput'
+import ChatHeader from './ChatHeader'
 
 // Add responsive breakpoints
 const breakpoints = {
@@ -56,6 +57,7 @@ function Chatbot() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [botTyping, setBotTyping] = useState(false)
   const [userTyping, setUserTyping] = useState(false)
+  const [uploadButtonRotating, setUploadButtonRotating] = useState(false)
   const messagesEndRef = useRef(null)
 
   // Position state for the chat window (bottom right)
@@ -70,9 +72,7 @@ function Chatbot() {
     isTablet: getViewportWidth() <= breakpoints.tablet && getViewportWidth() > breakpoints.mobile
   })
 
-  // Add state for tracking dialog open status
-  const fileDialogOpen = useRef(false);
-
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (open && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
@@ -83,6 +83,34 @@ function Chatbot() {
   useEffect(() => {
     document.body.setAttribute('data-chatbot-theme', theme)
   }, [theme])
+
+  // Set a default user avatar and name
+  useEffect(() => {
+    if (!userAvatar) {
+      setUserAvatar(DEFAULT_USER_AVATAR);
+    }
+    
+    // Try to load saved name from localStorage
+    try {
+      const savedName = localStorage.getItem('chatbot-user-name');
+      if (savedName) {
+        setUserName(savedName);
+      }
+    } catch (error) {
+      console.error('Error loading user name:', error);
+    }
+  }, [userAvatar]);
+
+  // Save user name to localStorage when it changes
+  useEffect(() => {
+    if (userName) {
+      try {
+        localStorage.setItem('chatbot-user-name', userName);
+      } catch (error) {
+        console.error('Error saving user name:', error);
+      }
+    }
+  }, [userName]);
 
   // Handle pointer events for dragging
   const handlePointerDown = (e) => {
@@ -126,7 +154,7 @@ function Chatbot() {
     setShowEmojiPicker(false)
   }
 
-  // Handle file preview
+  // Handle file change
   const handleFileChange = (e) => {
     const fileObj = e.target.files[0];
     
@@ -140,32 +168,14 @@ function Chatbot() {
     if (fileObj) {
       setFile(fileObj);
       setFilePreview(null);
-      // Keep spinning when a file is selected
     } else {
       setFile(null);
       setFilePreview(null);
       setUploadButtonRotating(false);
     }
   };
-  // Handle file upload
-  const handleFileUpload = () => {
-    if (!file) return
-    setMessages((msgs) => [
-      ...msgs,
-      {
-        text: `uploaded file: ${file.name}`,
-        sender: 'bot',
-        time: new Date(),
-        file,
-        filePreview,
-        status: 'delivered'
-      },
-    ])
-    setFile(null)
-    setFilePreview(null)
-  }
 
-  // Handle send
+  // Handle send message
   const handleSend = (msgText = null) => {
     const text = msgText !== null ? msgText : input;
     
@@ -184,12 +194,10 @@ function Chatbot() {
         },
       ]);
       
-      // Reset file state and explicitly set rotation to false
+      // Reset file state
       setFile(null);
       setFilePreview(null);
       setUploadButtonRotating(false);
-      
-      
     }
     
     // Handle text message if not empty
@@ -234,7 +242,7 @@ function Chatbot() {
     }
 
     try {
-      setBotTyping(true); // Show typing indicator
+      setBotTyping(true);
       const summary = await summarizePdf(file);
 
       setMessages((prevMessages) => [
@@ -242,96 +250,19 @@ function Chatbot() {
         { text: summary, sender: "bot", time: new Date(), status: "delivered" },
       ]);
       
-      // Reset file state after summarization
       setFile(null);
       setFilePreview(null);
       setUploadButtonRotating(false);
-      setBotTyping(false); // Hide typing indicator
+      setBotTyping(false);
     } catch (error) {
       console.error(error);
       alert("Something went wrong during summarization.");
-      setBotTyping(false); // Hide typing indicator on error
+      setBotTyping(false);
     }
   };
 
-  // Message status simulation
-  useEffect(() => {
-    // Mark last user message as delivered after 1s
-    if (messages.length > 1 && messages[messages.length - 1].sender === 'user') {
-      const idx = messages.length - 1
-      setTimeout(() => {
-        setMessages(msgs => {
-          if (msgs[idx] && msgs[idx].status === 'sent') {
-            const updated = [...msgs]
-            updated[idx] = { ...updated[idx], status: 'delivered' }
-            return updated
-          }
-          return msgs
-        })
-      }, 1000)
-    }
-  }, [messages])
-
-  // Set a default user avatar and name
-  useEffect(() => {
-    if (!userAvatar) {
-      setUserAvatar(DEFAULT_USER_AVATAR);
-    }
-    
-    // Try to load saved name from localStorage
-    try {
-      const savedName = localStorage.getItem('chatbot-user-name');
-      if (savedName) {
-        setUserName(savedName);
-      }
-    } catch (error) {
-      console.error('Error loading user name:', error);
-    }
-  }, [userAvatar]);
-
-  // Save user name to localStorage when it changes
-  useEffect(() => {
-    if (userName) {
-      try {
-        localStorage.setItem('chatbot-user-name', userName);
-      } catch (error) {
-        console.error('Error saving user name:', error);
-      }
-    }
-  }, [userName]);
-
-  // Theme toggle
+  // Toggle theme
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light')
-
-  // Update viewport state on resize
-  useEffect(() => {
-    const handleResize = () => {
-      const width = getViewportWidth()
-      setViewport({
-        width,
-        isMobile: width <= breakpoints.mobile,
-        isTablet: width <= breakpoints.tablet && width > breakpoints.mobile
-      })
-      
-      // Adjust chat window position based on screen size
-      if (width <= breakpoints.tablet) {
-        // On mobile/tablet, position at bottom
-        setPosition({ 
-          x: 0, 
-          y: window.innerHeight - (viewport.isMobile ? '90vh' : '75vh') 
-        })
-      } else {
-        // On desktop, position at bottom right
-        setPosition({ 
-          x: window.innerWidth - 485, 
-          y: window.innerHeight - 570 
-        })
-      }
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [viewport.isMobile])
 
   // Reset position when closed
   const handleClose = () => {
@@ -360,220 +291,58 @@ function Chatbot() {
   // Theme styles
   const themeStyles = theme === 'dark'
     ? {
-        background: '#2a2e38', // Lightened from #23272f
-        color: '#f0f4f8',      // Lightened from #fafdff
-        border: '1.5px solid #3d4352', // Lightened from #333
+        background: '#2a2e38',
+        color: '#f0f4f8',
+        border: '1.5px solid #3d4352',
       }
     : {
-        background: '#f8faff', // Lightened from white
-        color: '#3a4555',      // Darkened from #222 for less contrast
-        border: '1.5px solid #e6eeff', // Lightened from #e0eaff
+        background: '#f8faff',
+        color: '#3a4555',
+        border: '1.5px solid #e6eeff',
       }
-
-  // Add a function to handle clicking outside the emoji picker
-  const handleClickOutside = (e) => {
-    if (showEmojiPicker && !e.target.closest('.emoji-picker-container') && !e.target.closest('.emoji-button')) {
-      setShowEmojiPicker(false);
-    }
-  };
-
-  // Add event listener for clicking outside
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showEmojiPicker]);
-
-  // Add this function to handle upload button click animation
-  const handleUploadButtonClick = () => {
-    if (!file) {
-      // Start spinning
-      setUploadButtonRotating(true);
-      
-      // Open the file dialog
-      const fileInput = document.getElementById('file-upload');
-      if (fileInput) {
-        fileInput.value = '';
-        fileInput.click();
-        
-        // Set up a one-time focus event listener
-        const handleFocus = () => {
-          // If no file was selected, stop spinning
-          if (!file) {
-            setUploadButtonRotating(false);
-          }
-          window.removeEventListener('focus', handleFocus);
-        };
-        
-        window.addEventListener('focus', handleFocus, { once: true });
-      }
-    } else {
-      // If a file is already selected, clear it
-      setFile(null);
-      setFilePreview(null);
-      setUploadButtonRotating(false);
-    }
-  };
-
-  // Remove any existing useEffect for dialog detection
-  // as we're handling it directly in the click handler
 
   return (
-    
-    <ChatbotContainer style={{ position: 'static' }}>
+    <ChatbotContainer>
       {!open && (
-        <StyledFloatingButton
+        <FloatingButton
           onClick={handleOpen}
-          style={{
-            animation: 'pulse 0.8s infinite alternate',
-            bottom: viewport.isMobile ? '16px' : '24px',
-            right: viewport.isMobile ? '16px' : '24px',
-            width: viewport.isMobile ? '48px' : '56px',
-            height: viewport.isMobile ? '48px' : '56px',
-            fontSize: viewport.isMobile ? '1.7rem' : '2rem',
-            background: 'linear-gradient(135deg, #4a90e2 60%, #6aa9f0 100%)', // Lightened
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)' // Reduced shadow
-          }}
+          $isMobile={viewport.isMobile}
         >
           💬
-        </StyledFloatingButton>
+        </FloatingButton>
       )}
+
       {open && (
         <div style={{
           position: 'fixed',
-          left: viewport.width <= breakpoints.tablet ? 0 : position.x,
-          top: viewport.width <= breakpoints.tablet ? 'auto' : position.y,
-          bottom: viewport.width <= breakpoints.tablet ? 0 : 'auto',
+          top: position.y,
+          left: position.x,
+          width: viewport.width <= breakpoints.tablet ? '100%' : '380px',
+          height: viewport.width <= breakpoints.tablet ? (viewport.isMobile ? '90vh' : '75vh') : '520px',
           zIndex: 1000,
-          cursor: dragging ? 'grabbing' : (viewport.width <= breakpoints.tablet ? 'default' : 'grab'),
-          transition: dragging ? 'none' : 'transform 0.2s',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-          borderRadius: viewport.width <= breakpoints.tablet ? 
-            (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18,
-          width: viewport.width <= breakpoints.tablet ? '100%' : '465px',
-          height: viewport.width <= breakpoints.tablet ? 
-            (viewport.isMobile ? '90vh' : '75vh') : '550px',
-          background: themeStyles.background || 'rgba(255,255,255,0.95)',
           color: themeStyles.color,
-          border: themeStyles.border,
+          border: 'none', // Remove the border here
           backdropFilter: 'blur(2px)',
           padding: 0,
           overflow: 'hidden'
         }}>
-          <StyledChatWindow style={{
-            width: '100%',
-            height: '100%',
-            margin: 0,
-            background: theme === 'dark' 
-              ? 'linear-gradient(135deg, #2a2e38 0%, #323742 50%, #3a3f4a 100%)' // Improved dark gradient
-              : 'linear-gradient(135deg, #f5faff 0%, #edf7ff 50%, #e8f4ff 100%)', // Improved light gradient
-            borderRadius: viewport.width <= breakpoints.tablet ? 
-              (viewport.isMobile ? '18px 18px 0 0' : '18px 18px 0 0') : 18,
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <Header
-              style={{
-                cursor: viewport.width <= breakpoints.tablet ? 'default' : (dragging ? 'grabbing' : 'grab'),
-                userSelect: 'none',
-                background: theme === 'dark'
-                  ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // More dimensional gradient
-                  : 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%)', // Smoother, more dimensional gradient
-                color: '#fff',
-                fontWeight: 600,
-                fontSize: viewport.isMobile ? '1rem' : '1.1rem',
-                letterSpacing: '0.5px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)', // Reduced shadow
-                width: '100%',
-                padding: viewport.isMobile ? '0.8rem 1rem' : '1rem 1.25rem'
-              }}
-              onPointerDown={viewport.width <= breakpoints.tablet ? null : handlePointerDown}
+          <ChatWindow 
+            $theme={theme}
+            $viewport={viewport}
+            style={{ border: 'none' }} // Add this to ensure no border on the ChatWindow
+          >
+            <ChatHeader 
+              theme={theme}
+              handleClose={handleClose}
+              toggleTheme={toggleTheme}
+              viewport={viewport}
+              isResponding={botTyping}
+            />
+            
+            <Messages
+              $theme={theme}
+              $viewport={viewport}
             >
-              <span>
-                <span style={{ 
-                  fontSize: '1.5rem', 
-                  marginRight: 8,
-                  animation: 'botIconPulsate 1s ease-in-out infinite',
-                  display: 'inline-block',
-                  transformOrigin: 'center'
-                }}>🤖</span>
-                <span style={{ animation: 'subtle-pulse 3s infinite' }}>Chaya</span>
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginRight: 20 }}>
-                <button
-                  onClick={toggleTheme}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#fff',
-                    fontSize: '1.2rem',
-                    cursor: 'pointer',
-                    marginRight: 5
-                  }}
-                  title="Toggle theme"
-                >
-                  {theme === 'dark' ? '🌙' : '☀️'}
-                </button>
-                <button 
-                  onClick={handleClose}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#fff',
-                    fontSize: '1.5rem',
-                    cursor: 'pointer',
-                    padding: '0 8px',
-                    alignContent: 'center',
-                    display: 'flex',
-                    marginRight: 10
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            </Header>
-            
-            
-
-            {/* User profile controls */}
-            {/* <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '0.5rem 1rem 0.25rem 1rem',
-              background: theme === 'dark' ? '#23272f' : '#fafdff'
-            }}>
-              <span style={{ fontSize: '1.3rem' }}>Avatar:</span>
-              <select value={userAvatar} onChange={handleAvatarChange} style={{ fontSize: '1.2rem' }}>
-                <option value="🧑">🧑</option>
-                <option value="👩">👩</option>
-                <option value="👨">👨</option>
-                <option value="🦸">🦸</option>
-                <option value="🧙">🧙</option>
-                <option value="🧑‍💻">🧑‍💻</option>
-                <option value="🧑‍🎨">🧑‍🎨</option>
-              </select>
-              <input
-                type="text"
-                value={userName}
-                onChange={handleNameChange}
-                placeholder="Your name"
-                style={{
-                  borderRadius: 6,
-                  border: '1px solid #cce0ff',
-                  padding: '0.2rem 0.5rem',
-                  fontSize: '1rem',
-                }}
-              />
-            </div> */}
-            <StyledMessages style={{
-              background: theme === 'dark'
-                ? 'repeating-linear-gradient(135deg, #2a2e38, #2a2e38 20px, #323742 20px, #323742 40px)' // Lightened
-                : 'linear-gradient(135deg, #f0f7ff, #e8f4ff)', // Very light blue gradient
-              padding: viewport.isMobile ? '0.8rem' : '1rem',
-              boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.02)' // Reduced shadow
-            }}>
               {messages.map((msg, i) => (
                 <div key={i} style={{
                   display: 'flex',
@@ -588,86 +357,42 @@ function Chatbot() {
                   }}>
                     {msg.sender === 'user' ? (msg.avatar || userAvatar) : BOT_AVATAR}
                   </div>
-                  <MessageBubble $sender={msg.sender} style={{
-                    background: msg.sender === 'user'
-                      ? (theme === 'dark'
-                        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // Dark gray gradient for user in dark mode
-                        : 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 50%, #6aa9f0 100%)') // Light blue gradient for user in light mode
-                      : (theme === 'dark'
-                        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)' // Dark gray gradient for bot in dark mode
-                        : 'linear-gradient(135deg, #ffffff 0%, #f5f8ff 50%, #f0f7ff 100%)'), // Light gradient for bot in light mode
-                    color: msg.sender === 'user' 
-                      ? (theme === 'dark' ? '#f0f4f8' : '#fff') // Light text for user in dark mode, white in light mode
-                      : (theme === 'dark' ? '#f0f4f8' : '#3a4555'), // Light text for bot in dark mode, dark in light mode
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
-                    position: 'relative',
-                    animation: 'fadeInBubble 0.4s',
-                    fontSize: viewport.isMobile ? '0.95rem' : '1rem',
-                    padding: viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem',
-                    maxWidth: viewport.isMobile ? '75%' : '80%',
-                    border: msg.sender === 'user'
-                      ? (theme === 'dark' ? '1px solid #4a5060' : '1px solid #6aa9f0') // Dark border for user in dark mode
-                      : (theme === 'dark' ? '1px solid #4a5060' : '1px solid #d8e6ff') // Dark border for bot in dark mode
-                  }}>
+                  <MessageBubble
+                    $sender={msg.sender}
+                    $theme={theme}
+                    $viewport={viewport}
+                  >
                     {msg.text}
                     {msg.file && (
                       <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
                         {msg.isPdf ? (
                           <span style={{ 
-                            background: theme === 'dark' ? '#2a2e38' : '#e0eaff', // Darker background in dark mode
-                            color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Light text in dark mode
-                            padding: '0.1rem 0.3rem',
-                            borderRadius: 4,
-                            fontWeight: 'bold',
-                            fontSize: '0.8rem',
-                            marginRight: 6,
-                            display: 'inline-block',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
-                          }}>PDF</span>
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '4px',
+                            color: theme === 'dark' ? '#f0f4f8' : '#3a4555'
+                          }}>
+                            <span>📄</span>
+                            <span style={{ fontStyle: 'italic' }}>{msg.file.name}</span>
+                          </span>
                         ) : (
-                          <span role="img" aria-label="file" style={{ 
-                            marginRight: 4,
-                            opacity: theme === 'dark' ? 0.8 : 0.6
-                          }}>📄</span>
+                          <span>📎 {msg.file.name}</span>
                         )}
-                        {msg.fileName}
                       </span>
                     )}
-                    <span style={{
-                      display: 'block',
-                      fontSize: '0.75em',
-                      color: msg.sender === 'user'
-                        ? (theme === 'dark' ? '#a0a8b8' : '#e0eaff') // Lighter gray in dark mode
-                        : (theme === 'dark' ? '#a0a8b8' : '#888'), // Lighter gray in dark mode
-                      marginTop: 2,
-                      textAlign: msg.sender === 'user' ? 'right' : 'left'
+                    <span style={{ 
+                      fontSize: '0.7em', 
+                      opacity: 0.7, 
+                      marginLeft: '4px',
+                      float: 'right',
+                      marginTop: '4px'
                     }}>
-                      {formatTime(msg.time)}{' '}
-                      {msg.sender === 'user' && (
-                        <span style={{ 
-                          marginLeft: 4, 
-                          fontSize: '0.9em',
-                          color: theme === 'dark' ? '#d8e6ff' : '#f0f7ff' // Light blue in dark mode
-                        }}>
-                          {msg.status === 'sent' && (
-                            <span title="Sending" role="img" aria-label="sending">⏱️</span>
-                          )}
-                          {msg.status === 'delivered' && (
-                            <span title="Delivered" role="img" aria-label="delivered">✓</span>
-                          )}
-                          {msg.status === 'read' && (
-                            <span title="Read" style={{ color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' }}>
-                              <span style={{ letterSpacing: '-2px' }}>✓✓</span>
-                            </span>
-                          )}
-                        </span>
-                      )}
+                      {formatTime(msg.time)}
                     </span>
                   </MessageBubble>
                 </div>
               ))}
               
-              {/* Typing indicators */}
               {userTyping && (
                 <div style={{
                   display: 'flex',
@@ -675,70 +400,89 @@ function Chatbot() {
                   marginBottom: 2,
                   flexDirection: 'row-reverse'
                 }}>
-                  <div style={{ fontSize: '1.3rem', marginLeft: 8 }}>{userAvatar}</div>
-                  <MessageBubble $sender="user" style={{
-                    background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
-                      : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)',
-                    color: '#fff',
-                    fontStyle: 'italic',
-                    opacity: 0.7,
-                    border: theme === 'dark' ? '1px solid #5a7db0' : '1px solid #6aa9f0'
+                  <div style={{
+                    fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
+                    margin: '0 0 0 8px',
+                    userSelect: 'none'
                   }}>
-                    <span className="typing">
-                      <span style={{ animation: 'blink 1s infinite' }}>You are typing</span>
-                      <span style={{ 
-                        animation: 'blink 1s infinite 0.33s',
-                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' // Very light blue
-                      }}>.</span>
-                      <span style={{ 
-                        animation: 'blink 1s infinite 0.66s',
-                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' // Very light blue
-                      }}>.</span>
-                      <span style={{ 
-                        animation: 'blink 1s infinite 0.99s',
-                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff' // Very light blue
-                      }}>.</span>
-                    </span>
+                    {userAvatar}
+                  </div>
+                  <MessageBubble
+                    $sender="user"
+                    $theme={theme}
+                    $viewport={viewport}
+                    style={{
+                      background: theme === 'dark'
+                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
+                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)',
+                      color: '#ffffff',
+                      fontStyle: 'italic',
+                      opacity: 0.7
+                    }}
+                  >
+                    <span>You are typing</span>
+                    <span style={{ 
+                      animation: 'blink 1s infinite 0.33s',
+                      color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
+                    }}>.</span>
+                    <span style={{ 
+                      animation: 'blink 1s infinite 0.66s',
+                      color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
+                    }}>.</span>
+                    <span style={{ 
+                      animation: 'blink 1s infinite 0.99s',
+                      color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
+                    }}>.</span>
                   </MessageBubble>
                 </div>
               )}
+              
               {botTyping && (
                 <div style={{
                   display: 'flex',
                   alignItems: 'flex-end',
-                  marginBottom: 2
+                  marginBottom: 2,
+                  flexDirection: 'row'
                 }}>
-                  <div style={{ fontSize: '1.3rem', marginRight: 8 }}>🤖</div>
-                  <MessageBubble $sender="bot" style={{
-                    background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #2a2f3a 70%, #3a3f4b 100%)'
-                      : 'linear-gradient(90deg, #ffffff 70%, #f8fbff 100%)',
-                    color: theme === 'dark' ? '#fafdff' : '#3a4555',
-                    fontStyle: 'italic',
-                    opacity: 0.7,
-                    border: theme === 'dark' ? '1px solid #4a5060' : '1px solid #d8e6ff'
+                  <div style={{
+                    fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
+                    margin: '0 8px 0 0',
+                    userSelect: 'none'
                   }}>
-                    <span className="typing">
-                      <span style={{ animation: 'blink 1s infinite' }}>Chaya is typing</span>
-                      <span style={{ 
-                        animation: 'blink 1s infinite 0.33s',
-                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff' // Very light blue
-                      }}>.</span>
-                      <span style={{ 
-                        animation: 'blink 1s infinite 0.66s',
-                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff' // Very light blue
-                      }}>.</span>
-                      <span style={{ 
-                        animation: 'blink 1s infinite 0.99s',
-                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff' // Very light blue
-                      }}>.</span>
-                    </span>
+                    {BOT_AVATAR}
+                  </div>
+                  <MessageBubble
+                    $sender="bot"
+                    $theme={theme}
+                    $viewport={viewport}
+                    style={{
+                      background: theme === 'dark'
+                        ? 'linear-gradient(90deg, #2a2f3a 70%, #3a3f4b 100%)'
+                        : 'linear-gradient(90deg, #ffffff 70%, #f8fbff 100%)',
+                      fontStyle: 'italic',
+                      opacity: 0.7
+                    }}
+                  >
+                    <span>Chaya is typing</span>
+                    <span style={{ 
+                      animation: 'blink 1s infinite 0.33s',
+                      color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
+                    }}>.</span>
+                    <span style={{ 
+                      animation: 'blink 1s infinite 0.66s',
+                      color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
+                    }}>.</span>
+                    <span style={{ 
+                      animation: 'blink 1s infinite 0.99s',
+                      color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
+                    }}>.</span>
                   </MessageBubble>
                 </div>
               )}
+              
               <div ref={messagesEndRef} />
-            </StyledMessages>
+            </Messages>
+            
             <QuickReplies 
               userName={userName}
               theme={theme}
@@ -746,130 +490,51 @@ function Chatbot() {
               handleSend={handleSend}
               quickReplies={QUICK_REPLIES}
             />
-            <StyledInputArea style={{
-              width: '100%',
-              maxWidth: '100%',
-              flexDirection: 'column',
-              gap: 8,
-              background: theme === 'dark' ? '#2a2e38' : '#f5faff', // Very light blue
-              padding: viewport.isMobile ? '0.6rem' : '0.75rem',
-              borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff', // Light blue border
-              borderBottomLeftRadius: viewport.width <= breakpoints.tablet ? 0 : '18px',
-              borderBottomRightRadius: viewport.width <= breakpoints.tablet ? 0 : '18px'
-            }}>
+            
+            <InputArea
+              $theme={theme}
+              $viewport={viewport}
+            >
               {/* File preview and summarize button */}
               {file && (
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   width: '100%',
+                  background: theme === 'dark' ? '#3a4050' : '#e6f0ff',
+                  padding: '0.5rem',
+                  borderRadius: '8px',
                   marginBottom: '0.5rem'
                 }}>
-                  <div style={{ position: 'relative', marginRight: 12 }}>
-                    <div style={{ position: 'relative' }}>
-                      <span style={{
-                        fontSize: '0.9rem',
-                        maxWidth: 100,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        background: theme === 'dark' ? '#23272f' : '#fafdff',
-                        borderRadius: 6,
-                        padding: '0.2rem 0.5rem',
-                        display: 'inline-block'
-                      }}>
-                        <span style={{ 
-                          background: theme === 'dark' ? '#4a5060' : '#e0eaff', // Reduced contrast
-                          color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0', // Lighter text color
-                          padding: '0.1rem 0.3rem',
-                          borderRadius: 4,
-                          fontWeight: 'bold',
-                          fontSize: '0.8rem',
-                          marginRight: 6,
-                          display: 'inline-block'
-                        }}>PDF</span>
-                        {file.name}
-                      </span>
-                      <button
-                        onClick={() => { 
-                          setFile(null); 
-                          setFilePreview(null); 
-                          setUploadButtonRotating(false);
-                        }}
-                        style={{
-                          position: 'absolute',
-                          top: -8,
-                          right: -8,
-                          width: '18px',
-                          height: '18px',
-                          borderRadius: '50%',
-                          background: theme === 'dark' ? '#4a5060' : '#e0eaff',
-                          color: theme === 'dark' ? '#d8e6ff' : '#6aa9f0',
-                          border: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          fontSize: '0.8rem',
-                          fontWeight: 'bold',
-                          padding: 0
-                        }}
-                        title="Cancel upload"
-                      >
-                        ×
-                      </button>
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                    <span style={{ fontSize: '1.2rem' }}>📄</span>
+                    <span style={{ 
+                      fontSize: '0.9rem',
+                      color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {file.name}
+                    </span>
                   </div>
                   <button
-                    onClick={handleSummarize} // Direct reference to the component method
+                    onClick={() => {
+                      setFile(null);
+                      setFilePreview(null);
+                      setUploadButtonRotating(false);
+                    }}
                     style={{
-                      background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
-                        : 'linear-gradient(90deg, #4a90e2 0%, #6aa9f0 100%)',
-                      color: theme === 'dark' ? '#f0f4f8' : '#ffffff',
+                      background: 'transparent',
                       border: 'none',
-                      borderRadius: viewport.isMobile ? '6px' : '8px',
-                      padding: viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem',
-                      fontSize: viewport.isMobile ? '0.9rem' : '1rem',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      fontWeight: 600,
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                      marginLeft: viewport.isMobile ? '2px' : '4px',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+                      color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
+                      cursor: 'pointer'
                     }}
                   >
-                    <svg 
-                      width={viewport.isMobile ? "14" : "16"} 
-                      height={viewport.isMobile ? "14" : "16"} 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    Summarize
+                    ×
                   </button>
                 </div>
               )}
-              {/* Input area with file upload button inline */}
               <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '0.8rem' }}>
                 <FileUploadButton 
                   onFileSelect={(fileObj) => {
@@ -915,35 +580,24 @@ function Chatbot() {
                   style={{
                     marginLeft: '0.5rem',
                     background: showEmojiPicker 
-                      ? (theme === 'dark' ? '#3d4352' : '#e6eeff') // Lightened
+                      ? (theme === 'dark' ? '#3d4352' : 'rgba(142, 185, 234, 0.3)') 
                       : (theme === 'dark'
-                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
-                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)'), // Lightened
+                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
+                        : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)'),
                     color: showEmojiPicker 
-                      ? (theme === 'dark' ? '#f0f4f8' : '#4a90e2') 
+                      ? (theme === 'dark' ? '#f0f4f8' : '#ffffff') 
                       : '#fff',
                     border: 'none',
                     borderRadius: '50%',
                     width: viewport.isMobile ? '2rem' : '2.2rem',
                     height: viewport.isMobile ? '2rem' : '2.2rem',
-                    fontSize: viewport.isMobile ? '1.1rem' : '1.2rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    padding: 0,
-                    transition: 'transform 0.2s, background 0.2s',
-                    transform: showEmojiPicker ? 'scale(1.1)' : 'scale(1)',
-                    boxShadow: showEmojiPicker 
-                      ? '0 0 0 2px rgba(74, 144, 226, 0.2)' // Lightened
-                      : '0 1px 3px rgba(0,0,0,0.05)' // Reduced shadow
                   }}
                   title="Emoji picker"
                 >
                   {showEmojiPicker ? '✕' : '😊'}
                 </button>
               </div>
-            </StyledInputArea>
+            </InputArea>
             {/* Emoji picker */}
             {showEmojiPicker && (
               <div className="emoji-picker-container" style={{
@@ -958,7 +612,7 @@ function Chatbot() {
                 <EmojiPicker onEmojiClick={handleEmojiClick} height={350} width={320} />
               </div>
             )}
-          </StyledChatWindow>
+          </ChatWindow>
         </div>
       )}
       <style>
