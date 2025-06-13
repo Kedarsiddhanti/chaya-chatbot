@@ -249,13 +249,33 @@ function Chatbot() {
     }
   }, [messages])
 
-  // User profile: change avatar and name
-  const handleAvatarChange = (e) => {
-    setUserAvatar(e.target.value)
-  }
-  const handleNameChange = (e) => {
-    setUserName(e.target.value)
-  }
+  // Set a default user avatar and name
+  useEffect(() => {
+    if (!userAvatar) {
+      setUserAvatar(DEFAULT_USER_AVATAR);
+    }
+    
+    // Try to load saved name from localStorage
+    try {
+      const savedName = localStorage.getItem('chatbot-user-name');
+      if (savedName) {
+        setUserName(savedName);
+      }
+    } catch (error) {
+      console.error('Error loading user name:', error);
+    }
+  }, [userAvatar]);
+
+  // Save user name to localStorage when it changes
+  useEffect(() => {
+    if (userName) {
+      try {
+        localStorage.setItem('chatbot-user-name', userName);
+      } catch (error) {
+        console.error('Error saving user name:', error);
+      }
+    }
+  }, [userName]);
 
   // Theme toggle
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light')
@@ -460,7 +480,7 @@ function Chatbot() {
             
 
             {/* User profile controls */}
-            <div style={{
+            {/* <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: 8,
@@ -487,11 +507,9 @@ function Chatbot() {
                   border: '1px solid #cce0ff',
                   padding: '0.2rem 0.5rem',
                   fontSize: '1rem',
-                  background: theme === 'dark' ? '#23272f' : '#fff',
-                  color: theme === 'dark' ? '#fafdff' : '#222'
                 }}
               />
-            </div>
+            </div> */}
             <StyledMessages style={{
               background: theme === 'dark'
                 ? 'repeating-linear-gradient(135deg, #2a2e38, #2a2e38 20px, #323742 20px, #323742 40px)' // Lightened
