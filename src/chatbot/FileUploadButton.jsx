@@ -66,28 +66,20 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
         onMouseLeave={() => setIsHovered(false)}
         aria-label="Attach PDF file"
         style={{
-          background: theme === 'dark'
-            ? isHovered 
-              ? 'linear-gradient(90deg, #4a5060 0%, #5a6070 100%)'
-              : 'linear-gradient(90deg, #3a4050 0%, #4a5060 100%)'
-            : isHovered
-              ? 'linear-gradient(90deg, rgb(152, 195, 244) 0%, rgb(143, 194, 252) 100%)'
-              : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)',
-          color: '#fff',
+          background: 'transparent',
+          color: theme === 'dark' ? '#f0f4f8' : '#4a90e2',
           border: 'none',
           borderRadius: '50%',
-          width: '2.4rem',
-          height: '2.4rem',
+          width: '44px',
+          height: '44px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
           padding: 0,
-          boxShadow: isHovered 
-            ? '0 3px 8px rgba(0,0,0,0.15)' 
-            : '0 1px 3px rgba(0,0,0,0.05)',
+          boxShadow: 'none',
           marginRight: '0.5rem',
-          transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
+          transition: 'transform 0.2s',
           transform: isHovered ? 'translateY(-2px)' : 'translateY(0)'
         }}
       >
@@ -95,15 +87,17 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
           ref={svgRef}
           viewBox="0 0 24 24"
           fill="none"
-          width="20"
-          height="20"
+          width="24"
+          height="24"
           style={{
             transition: 'transform 0.5s ease',
             transform: isRotated ? 'rotate(45deg)' : 'rotate(0deg)',
-            stroke: theme === 'dark' ? '#d8e6ff' : '#ffffff',
+            stroke: theme === 'dark' ? '#f0f4f8' : '#4a90e2',
+            strokeWidth: 2,
+            strokeLinecap: 'round'
           }}
         >
-          <path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" />
+          <path d="M12 5v14M5 12h14" />
         </svg>
       </button>
     </>
@@ -111,6 +105,8 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
 };
 
 export default FileUploadButton;
+
+
 
 
 

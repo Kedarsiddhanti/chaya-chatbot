@@ -346,137 +346,174 @@ function Chatbot() {
               {messages.map((msg, i) => (
                 <div key={i} style={{
                   display: 'flex',
-                  alignItems: 'flex-end',
-                  marginBottom: 2,
-                  flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
+                  flexDirection: 'column',
+                  alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                  marginBottom: 8, // Increased margin for spacing between message groups
                 }}>
-                  <div style={{
-                    fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
-                    margin: msg.sender === 'user' ? '0 0 0 8px' : '0 8px 0 0',
-                    userSelect: 'none'
-                  }}>
-                    {msg.sender === 'user' ? (msg.avatar || userAvatar) : BOT_AVATAR}
-                  </div>
-                  <MessageBubble
-                    $sender={msg.sender}
-                    $theme={theme}
-                    $viewport={viewport}
-                  >
-                    {msg.text}
-                    {msg.file && (
-                      <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
-                        {msg.isPdf ? (
-                          <span style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '4px',
-                            color: theme === 'dark' ? '#f0f4f8' : '#3a4555'
-                          }}>
-                            <span>📄</span>
-                            <span style={{ fontStyle: 'italic' }}>{msg.file.name}</span>
-                          </span>
-                        ) : (
-                          <span>📎 {msg.file.name}</span>
-                        )}
-                      </span>
-                    )}
-                    <span style={{ 
-                      fontSize: '0.7em', 
-                      opacity: 0.7, 
-                      marginLeft: '4px',
-                      float: 'right',
-                      marginTop: '4px'
+                  {/* Add name tag above message */}
+                  {msg.sender === 'bot' ? (
+                    <div style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      marginLeft: '12px',
+                      marginBottom: '2px',
+                      color: theme === 'dark' ? '#a0a8b8' : '#6a7383',
                     }}>
-                      {formatTime(msg.time)}
-                    </span>
-                  </MessageBubble>
+                      Chaya
+                    </div>
+                  ) : (
+                    <div style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      marginRight: '12px',
+                      marginBottom: '2px',
+                      color: theme === 'dark' ? '#a0a8b8' : '#6a7383',
+                    }}>
+                      You
+                    </div>
+                  )}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
+                  }}>
+                    <MessageBubble
+                      $sender={msg.sender}
+                      $theme={theme}
+                      $viewport={viewport}
+                    >
+                      {msg.text}
+                      {msg.file && (
+                        <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
+                          {msg.isPdf ? (
+                            <span style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '4px',
+                              color: theme === 'dark' ? '#f0f4f8' : '#3a4555'
+                            }}>
+                              <span>📄</span>
+                              <span style={{ fontStyle: 'italic' }}>{msg.file.name}</span>
+                            </span>
+                          ) : (
+                            <span>📎 {msg.file.name}</span>
+                          )}
+                        </span>
+                      )}
+                      <span style={{ 
+                        fontSize: '0.7em', 
+                        opacity: 0.7, 
+                        marginLeft: '4px',
+                        float: 'right',
+                        marginTop: '4px'
+                      }}>
+                        {formatTime(msg.time)}
+                      </span>
+                    </MessageBubble>
+                  </div>
                 </div>
               ))}
               
               {userTyping && (
                 <div style={{
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'flex-end',
-                  marginBottom: 2,
-                  flexDirection: 'row-reverse'
+                  marginBottom: 8,
                 }}>
                   <div style={{
-                    fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
-                    margin: '0 0 0 8px',
-                    userSelect: 'none'
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    marginRight: '12px',
+                    marginBottom: '2px',
+                    color: theme === 'dark' ? '#a0a8b8' : '#6a7383',
                   }}>
-                    {userAvatar}
+                    You
                   </div>
-                  <MessageBubble
-                    $sender="user"
-                    $theme={theme}
-                    $viewport={viewport}
-                    style={{
-                      background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
-                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)',
-                      color: '#ffffff',
-                      fontStyle: 'italic',
-                      opacity: 0.7
-                    }}
-                  >
-                    <span>You are typing</span>
-                    <span style={{ 
-                      animation: 'blink 1s infinite 0.33s',
-                      color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
-                    }}>.</span>
-                    <span style={{ 
-                      animation: 'blink 1s infinite 0.66s',
-                      color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
-                    }}>.</span>
-                    <span style={{ 
-                      animation: 'blink 1s infinite 0.99s',
-                      color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
-                    }}>.</span>
-                  </MessageBubble>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    flexDirection: 'row-reverse'
+                  }}>
+                    <MessageBubble
+                      $sender="user"
+                      $theme={theme}
+                      $viewport={viewport}
+                      style={{
+                        background: theme === 'dark'
+                          ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
+                          : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)',
+                        color: '#ffffff',
+                        fontStyle: 'italic',
+                        opacity: 0.7
+                      }}
+                    >
+                      <span>You are typing</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.33s',
+                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.66s',
+                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.99s',
+                        color: theme === 'dark' ? '#e6eeff' : '#f0f7ff'
+                      }}>.</span>
+                    </MessageBubble>
+                  </div>
                 </div>
               )}
               
               {botTyping && (
                 <div style={{
                   display: 'flex',
-                  alignItems: 'flex-end',
-                  marginBottom: 2,
-                  flexDirection: 'row'
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  marginBottom: 8,
                 }}>
                   <div style={{
-                    fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
-                    margin: '0 8px 0 0',
-                    userSelect: 'none'
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    marginLeft: '12px',
+                    marginBottom: '2px',
+                    color: theme === 'dark' ? '#a0a8b8' : '#6a7383',
                   }}>
-                    {BOT_AVATAR}
+                    Chaya
                   </div>
-                  <MessageBubble
-                    $sender="bot"
-                    $theme={theme}
-                    $viewport={viewport}
-                    style={{
-                      background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #2a2f3a 70%, #3a3f4b 100%)'
-                        : 'linear-gradient(90deg, #ffffff 70%, #f8fbff 100%)',
-                      fontStyle: 'italic',
-                      opacity: 0.7
-                    }}
-                  >
-                    <span>Chaya is typing</span>
-                    <span style={{ 
-                      animation: 'blink 1s infinite 0.33s',
-                      color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
-                    }}>.</span>
-                    <span style={{ 
-                      animation: 'blink 1s infinite 0.66s',
-                      color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
-                    }}>.</span>
-                    <span style={{ 
-                      animation: 'blink 1s infinite 0.99s',
-                      color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
-                    }}>.</span>
-                  </MessageBubble>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    flexDirection: 'row'
+                  }}>
+                    <MessageBubble
+                      $sender="bot"
+                      $theme={theme}
+                      $viewport={viewport}
+                      style={{
+                        background: theme === 'dark'
+                          ? 'linear-gradient(90deg, #2a2f3a 70%, #3a3f4b 100%)'
+                          : 'linear-gradient(90deg, #ffffff 70%, #f8fbff 100%)',
+                        fontStyle: 'italic',
+                        opacity: 0.7
+                      }}
+                    >
+                      <span>Chaya is typing</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.33s',
+                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.66s',
+                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
+                      }}>.</span>
+                      <span style={{ 
+                        animation: 'blink 1s infinite 0.99s',
+                        color: theme === 'dark' ? '#e6eeff' : '#d8e6ff'
+                      }}>.</span>
+                    </MessageBubble>
+                  </div>
                 </div>
               )}
               
@@ -579,22 +616,35 @@ function Chatbot() {
                   className="emoji-button"
                   style={{
                     marginLeft: '0.5rem',
-                    background: showEmojiPicker 
-                      ? (theme === 'dark' ? '#3d4352' : 'rgba(142, 185, 234, 0.3)') 
-                      : (theme === 'dark'
-                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
-                        : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)'),
-                    color: showEmojiPicker 
-                      ? (theme === 'dark' ? '#f0f4f8' : '#ffffff') 
-                      : '#fff',
+                    background: 'transparent',
+                    color: theme === 'dark' ? '#f0f4f8' : '#4a90e2',
                     border: 'none',
                     borderRadius: '50%',
-                    width: viewport.isMobile ? '2rem' : '2.2rem',
-                    height: viewport.isMobile ? '2rem' : '2.2rem',
+                    width: '44px',
+                    height: '44px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: 'none',
+                    padding: 0
                   }}
                   title="Emoji picker"
                 >
-                  {showEmojiPicker ? '✕' : '😊'}
+                  {showEmojiPicker ? (
+                    <span style={{ fontSize: '1.5rem' }}>✕</span>
+                  ) : (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="24" 
+                      height="24" 
+                      fill="currentColor" 
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                      <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
+                    </svg>
+                  )}
                 </button>
               </div>
             </InputArea>

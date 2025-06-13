@@ -9,7 +9,6 @@ const SendButton = ({
 }) => {
   const isDisabled = !input.trim() && !file;
 
-  // Create a click handler that explicitly calls the passed handleSend function
   const onClickHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -23,38 +22,31 @@ const SendButton = ({
       onClick={onClickHandler} 
       disabled={isDisabled}
       style={{
-        background: isDisabled 
-          ? (theme === 'dark' ? '#3a4050' : '#d8e6ff') 
-          : (theme === 'dark' 
-              ? 'linear-gradient(135deg, #4a90e2 0%, #6aa9f0 100%)' 
-              : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)'),
+        background: 'transparent',
         color: isDisabled 
           ? (theme === 'dark' ? '#6a7383' : '#a0b4d8') 
-          : '#ffffff',
+          : (theme === 'dark' ? '#f0f4f8' : '#4a90e2'),
         border: 'none',
         borderRadius: '50%',
-        width: viewport.isMobile ? '36px' : '40px',
-        height: viewport.isMobile ? '36px' : '40px',
-        minWidth: viewport.isMobile ? '36px' : '40px',
-        minHeight: viewport.isMobile ? '36px' : '40px',
+        width: '44px',
+        height: '44px',
+        minWidth: '44px',
+        minHeight: '44px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: isDisabled ? 'not-allowed' : 'pointer',
-        boxShadow: isDisabled 
-          ? 'none' 
-          : '0 2px 5px rgba(0,0,0,0.1)',
+        boxShadow: 'none',
+        padding: 0,
       }}
       onMouseEnter={(e) => {
         if (!isDisabled) {
           e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
         }
       }}
       onMouseLeave={(e) => {
         if (!isDisabled) {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
         }
       }}
       onTouchStart={(e) => {
@@ -74,8 +66,8 @@ const SendButton = ({
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         fill="currentColor"
-        width={viewport.isMobile ? "18px" : "20px"}
-        height={viewport.isMobile ? "18px" : "20px"}
+        width="24px"
+        height="24px"
         style={{
           flexShrink: 0,
           pointerEvents: 'none'
@@ -88,6 +80,4 @@ const SendButton = ({
 };
 
 export default SendButton;
-
-
 

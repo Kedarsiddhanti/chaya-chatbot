@@ -28,7 +28,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: viewport.isMobile ? '0.5rem 1rem' : '0.6rem 1.2rem', // Reduced padding
+      padding: viewport.isMobile ? '0.5rem 1rem' : '0.6rem 1.2rem',
       background: theme === 'dark' 
         ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 100%)' 
         : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)',
@@ -37,7 +37,11 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
       borderTopRightRadius: viewport.width <= 768 ? 0 : '18px',
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '10px' // Increased gap for better spacing
+      }}>
         <div
           style={{
             display: 'flex',
@@ -72,41 +76,80 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
         <h3 style={{
           margin: 0,
           fontWeight: 500,
-          fontSize: viewport.isMobile ? '1rem' : '1.1rem', // Reduced font size
+          fontSize: viewport.isMobile ? '1rem' : '1.1rem',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis'
         }}>Chaya Assistant</h3>
       </div>
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center',
+        gap: '16px' // Increased gap between buttons
+      }}>
         <button
           onClick={toggleTheme}
           style={{
             background: 'transparent',
             border: 'none',
             color: 'white',
-            fontSize: viewport.isMobile ? '1rem' : '1.1rem', // Reduced font size
             cursor: 'pointer',
-            padding: '4px',
-            borderRadius: '50%',
+            padding: 0,
+            width: '24px', // Fixed width
+            height: '24px', // Fixed height
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            marginRight: '2px' // Small right margin
           }}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          {theme === 'dark' ? (
+            <svg 
+              width="18" 
+              height="18" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="white" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          ) : (
+            <svg 
+              width="18" 
+              height="18" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="white" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          )}
         </button>
         <button
           onClick={handleClose}
           style={{
-            background: 'rgba(255,255,255,0.2)',
+            background: 'transparent', // Changed from rgba(255,255,255,0.2) to transparent
             border: 'none',
             color: 'white',
-            fontSize: viewport.isMobile ? '1.2rem' : '1.3rem', // Reduced font size
+            fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
             cursor: 'pointer',
             padding: '0',
-            width: viewport.isMobile ? '22px' : '24px', // Reduced size
-            height: viewport.isMobile ? '22px' : '24px', // Reduced size
+            width: viewport.isMobile ? '22px' : '24px',
+            height: viewport.isMobile ? '22px' : '24px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
