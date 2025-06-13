@@ -317,11 +317,34 @@ function Chatbot() {
   // Theme styles
   const themeStyles = theme === 'dark'
     ? {
-        background: '#23272f',
-        color: '#fafdff',
-        border: '1.5px solid #333',
+        background: '#2a2e38', // Lightened from #23272f
+        color: '#f0f4f8',      // Lightened from #fafdff
+        border: '1.5px solid #3d4352', // Lightened from #333
       }
-    : {}
+    : {
+        background: '#f8faff', // Lightened from white
+        color: '#3a4555',      // Darkened from #222 for less contrast
+        border: '1.5px solid #e6eeff', // Lightened from #e0eaff
+      }
+
+  // Add a function to handle clicking outside the emoji picker
+  const handleClickOutside = (e) => {
+    if (showEmojiPicker && !e.target.closest('.emoji-picker-container')) {
+      setShowEmojiPicker(false);
+    }
+  };
+
+  // Add event listener for clicking outside
+  useEffect(() => {
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   return (
     
@@ -335,7 +358,9 @@ function Chatbot() {
             right: viewport.isMobile ? '16px' : '24px',
             width: viewport.isMobile ? '48px' : '56px',
             height: viewport.isMobile ? '48px' : '56px',
-            fontSize: viewport.isMobile ? '1.7rem' : '2rem'
+            fontSize: viewport.isMobile ? '1.7rem' : '2rem',
+            background: 'linear-gradient(135deg, #4a90e2 60%, #6aa9f0 100%)', // Lightened
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)' // Reduced shadow
           }}
         >
           💬
@@ -375,13 +400,13 @@ function Chatbot() {
                 cursor: viewport.width <= breakpoints.tablet ? 'default' : (dragging ? 'grabbing' : 'grab'),
                 userSelect: 'none',
                 background: theme === 'dark'
-                  ? 'linear-gradient(90deg, #23272f 60%, #3a3f4b 100%)'
-                  : 'linear-gradient(90deg, #007bff 60%, #00c6ff 100%)',
+                  ? 'linear-gradient(90deg, #3a4050 60%, #4a5060 100%)' // Lightened
+                  : 'linear-gradient(90deg, #4a90e2 60%, #6aa9f0 100%)', // Lightened from #007bff
                 color: '#fff',
                 fontWeight: 600,
                 fontSize: viewport.isMobile ? '1rem' : '1.1rem',
                 letterSpacing: '0.5px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)', // Reduced shadow
                 width: '100%',
                 padding: viewport.isMobile ? '0.8rem 1rem' : '1rem 1.25rem'
               }}
@@ -468,9 +493,10 @@ function Chatbot() {
             </div>
             <StyledMessages style={{
               background: theme === 'dark'
-                ? 'repeating-linear-gradient(135deg, #23272f, #23272f 20px, #2a2f3a 20px, #2a2f3a 40px)'
-                : 'repeating-linear-gradient(135deg, #f7f7f7, #f7f7f7 20px, #f0f4ff 20px, #f0f4ff 40px)',
-              padding: viewport.isMobile ? '0.8rem' : '1rem'
+                ? 'repeating-linear-gradient(135deg, #2a2e38, #2a2e38 20px, #323742 20px, #323742 40px)' // Lightened
+                : 'repeating-linear-gradient(135deg, #f8faff, #f8faff 20px, #f0f6ff 20px, #f0f6ff 40px)', // Lightened
+              padding: viewport.isMobile ? '0.8rem' : '1rem',
+              boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.02)' // Reduced shadow
             }}>
               {messages.map((msg, i) => (
                 <div key={i} style={{
@@ -489,32 +515,36 @@ function Chatbot() {
                   <MessageBubble $sender={msg.sender} style={{
                     background: msg.sender === 'user'
                       ? (theme === 'dark'
-                        ? 'linear-gradient(90deg, #0056b3 70%, #00aaff 100%)'
-                        : 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)')
+                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
+                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)') // Lightened
                       : (theme === 'dark'
-                        ? 'linear-gradient(90deg, #2a2f3a 70%, #3a3f4b 100%)'
-                        : 'linear-gradient(90deg, #e5e5ea 70%, #f0f4ff 100%)'),
-                    color: msg.sender === 'user' ? '#fff' : (theme === 'dark' ? '#fafdff' : '#222'),
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                        ? 'linear-gradient(90deg, #3a4050 70%, #4a5060 100%)' // Lightened
+                        : 'linear-gradient(90deg, #edf0f5 70%, #e6eeff 100%)'), // Lightened
+                    color: msg.sender === 'user' ? '#fff' : (theme === 'dark' ? '#f0f4f8' : '#3a4555'),
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)', // Reduced shadow
                     position: 'relative',
                     animation: 'fadeInBubble 0.4s',
                     fontSize: viewport.isMobile ? '0.95rem' : '1rem',
                     padding: viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem',
-                    maxWidth: viewport.isMobile ? '75%' : '80%'
+                    maxWidth: viewport.isMobile ? '75%' : '80%',
+                    border: msg.sender === 'user'
+                      ? (theme === 'dark' ? '1px solid #5a7db0' : '1px solid #6aa9f0') // Lightened
+                      : (theme === 'dark' ? '1px solid #4a5060' : '1px solid #e6eeff') // Lightened
                   }}>
                     {msg.text}
                     {msg.file && (
                       <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
                         {msg.isPdf ? (
                           <span style={{ 
-                            background: '#ff0000',
+                            background: theme === 'dark' ? '#e05252' : '#ff5252', // Lightened from #ff0000
                             color: 'white',
                             padding: '0.1rem 0.3rem',
                             borderRadius: 4,
                             fontWeight: 'bold',
                             fontSize: '0.8rem',
                             marginRight: 6,
-                            display: 'inline-block'
+                            display: 'inline-block',
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)' // Reduced shadow
                           }}>PDF</span>
                         ) : (
                           <span role="img" aria-label="file" style={{ marginRight: 4 }}>📄</span>
@@ -603,7 +633,7 @@ function Chatbot() {
                 flexWrap: 'wrap',
                 gap: viewport.isMobile ? '0.4rem' : '0.5rem',
                 padding: viewport.isMobile ? '0.4rem 0.8rem 0.2rem 0.8rem' : '0.5rem 1rem 0.25rem 1rem',
-                background: theme === 'dark' ? '#23272f' : '#fafdff'
+                background: theme === 'dark' ? '#2a2e38' : '#f8faff' // Lightened
               }}>
                 {QUICK_REPLIES.map((reply, idx) => (
                   <button
@@ -611,8 +641,8 @@ function Chatbot() {
                     onClick={() => handleSend(reply)}
                     style={{
                       background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #0056b3 70%, #00aaff 100%)'
-                        : 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)',
+                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
+                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)', // Lightened
                       color: '#fff',
                       border: 'none',
                       borderRadius: 8,
@@ -620,7 +650,7 @@ function Chatbot() {
                       fontSize: viewport.isMobile ? '0.85rem' : '0.95rem',
                       cursor: 'pointer',
                       fontWeight: 500,
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)' // Reduced shadow
                     }}
                   >
                     {reply}
@@ -632,8 +662,9 @@ function Chatbot() {
               maxWidth: viewport.width <= breakpoints.tablet ? '100%' : 400,
               flexDirection: 'column',
               gap: 0,
-              background: theme === 'dark' ? '#23272f' : 'transparent',
-              padding: viewport.isMobile ? '0.6rem' : '0.75rem'
+              background: theme === 'dark' ? '#2a2e38' : '#f8faff', // Lightened
+              padding: viewport.isMobile ? '0.6rem' : '0.75rem',
+              borderTop: theme === 'dark' ? '1px solid #3d4352' : '1px solid #e6eeff' // Lightened
             }}>
               {/* First line: input and send */}
               <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -646,9 +677,9 @@ function Chatbot() {
                     flex: 1,
                     minWidth: 0,
                     marginRight: '0.5rem',
-                    border: '1.5px solid #cce0ff',
-                    background: theme === 'dark' ? '#23272f' : '#fafdff',
-                    color: theme === 'dark' ? '#fafdff' : '#222',
+                    border: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e4ff', // Lightened
+                    background: theme === 'dark' ? '#323742' : '#ffffff', // Lightened
+                    color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
                     borderRadius: 8,
                     fontSize: viewport.isMobile ? '0.95rem' : '1rem',
                     padding: viewport.isMobile ? '0.4rem' : '0.5rem',
@@ -658,57 +689,127 @@ function Chatbot() {
                 <button onClick={handleSend} style={{
                   flexShrink: 0,
                   background: theme === 'dark'
-                    ? 'linear-gradient(90deg, #0056b3 70%, #00aaff 100%)'
-                    : 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)',
+                    ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
+                    : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)', // Lightened
                   color: '#fff',
                   border: 'none',
                   borderRadius: 8,
                   padding: viewport.isMobile ? '0.4rem 0.9rem' : '0.5rem 1.1rem',
                   fontWeight: 600,
                   fontSize: viewport.isMobile ? '0.95rem' : '1rem',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)' // Reduced shadow
                 }}>Send</button>
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   style={{
                     marginLeft: '0.5rem',
-                    background: theme === 'dark'
-                      ? 'linear-gradient(90deg, #0056b3 70%, #00aaff 100%)'
-                      : 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)',
-                    color: '#fff',
+                    background: showEmojiPicker 
+                      ? (theme === 'dark' ? '#3d4352' : '#e6eeff') // Lightened
+                      : (theme === 'dark'
+                        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)' // Lightened
+                        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)'), // Lightened
+                    color: showEmojiPicker 
+                      ? (theme === 'dark' ? '#f0f4f8' : '#4a90e2') 
+                      : '#fff',
                     border: 'none',
                     borderRadius: '50%',
-                    width: viewport.isMobile ? '1.8rem' : '2rem',
-                    height: viewport.isMobile ? '1.8rem' : '2rem',
+                    width: viewport.isMobile ? '2rem' : '2.2rem',
+                    height: viewport.isMobile ? '2rem' : '2.2rem',
                     fontSize: viewport.isMobile ? '1.1rem' : '1.2rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    padding: 0
+                    padding: 0,
+                    transition: 'transform 0.2s, background 0.2s',
+                    transform: showEmojiPicker ? 'scale(1.1)' : 'scale(1)',
+                    boxShadow: showEmojiPicker 
+                      ? '0 0 0 2px rgba(74, 144, 226, 0.2)' // Lightened
+                      : '0 1px 3px rgba(0,0,0,0.05)' // Reduced shadow
                   }}
                   title="Emoji picker"
                 >
-                  😊
+                  {showEmojiPicker ? '✕' : '😊'}
                 </button>
                 {showEmojiPicker && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '3.5rem',
-                    right: viewport.isMobile ? '0' : '0',
-                    zIndex: 9999,
-                    width: viewport.isMobile ? '100%' : 'auto',
-                    maxWidth: viewport.isMobile ? '100%' : '320px'
-                  }}>
-                    <EmojiPicker
-                      theme={theme}
-                      onEmojiClick={handleEmojiClick}
-                      autoFocusSearch={false}
-                      width={viewport.isMobile ? '100%' : '320px'}
-                      height={viewport.isMobile ? '300px' : '400px'}
-                    />
-                  </div>
+                  <>
+                    {viewport.width > breakpoints.mobile && (
+                      <div 
+                        style={{
+                          position: 'fixed',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          zIndex: 9998
+                        }}
+                        onClick={() => setShowEmojiPicker(false)}
+                      />
+                    )}
+                    <div 
+                      className="emoji-picker-container"
+                      style={{
+                        position: 'absolute',
+                        bottom: viewport.isMobile ? '4.5rem' : '3.5rem',
+                        right: viewport.isMobile ? '0' : '0',
+                        zIndex: 9999,
+                        width: viewport.isMobile ? '100%' : 'auto',
+                        maxWidth: viewport.isMobile ? '100%' : '320px',
+                        boxShadow: '0 -2px 10px rgba(0,0,0,0.15)',
+                        borderRadius: viewport.isMobile ? '16px 16px 0 0' : '12px',
+                        overflow: 'hidden',
+                        border: theme === 'dark' ? '1px solid #3a3f4b' : '1px solid #e0eaff',
+                        animation: viewport.isMobile ? 'slideUpFade 0.3s ease-out' : 'fadeIn 0.2s'
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '0.5rem 0.75rem',
+                        background: theme === 'dark' ? '#23272f' : '#f0f4ff',
+                        borderBottom: theme === 'dark' ? '1px solid #3a3f4b' : '1px solid #e0eaff'
+                      }}>
+                        <span style={{ 
+                          fontWeight: 'bold', 
+                          fontSize: viewport.isMobile ? '0.9rem' : '1rem',
+                          color: theme === 'dark' ? '#fafdff' : '#333'
+                        }}>
+                          Select Emoji
+                        </span>
+                        <button
+                          onClick={() => setShowEmojiPicker(false)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '1.2rem',
+                            cursor: 'pointer',
+                            color: theme === 'dark' ? '#fafdff' : '#333',
+                            padding: '0.25rem'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <EmojiPicker
+                        theme={theme}
+                        onEmojiClick={handleEmojiClick}
+                        autoFocusSearch={false}
+                        width={viewport.isMobile ? '100%' : '320px'}
+                        height={viewport.isMobile ? '300px' : '350px'}
+                        searchPlaceHolder="Search emoji..."
+                        previewConfig={{
+                          showPreview: viewport.isMobile ? false : true,
+                          defaultCaption: 'Click to add',
+                          defaultEmoji: '😊'
+                        }}
+                        skinTonesDisabled={viewport.isMobile}
+                        searchDisabled={viewport.isMobile}
+                        lazyLoadEmojis={true}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
               {/* Second line: + icon and upload */}
@@ -857,6 +958,14 @@ function Chatbot() {
             0% { transform: scale(1); }
             50% { transform: scale(1.15); }
             100% { transform: scale(1); }
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
           }
         `}
       </style>
