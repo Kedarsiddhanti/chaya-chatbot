@@ -16,6 +16,7 @@ import { summarizePdf } from './SummarizeService'
 import SendButton from './SendButton'
 import ChatInput from './ChatInput'
 import ChatHeader from './ChatHeader'
+import PdfIcon from './PdfIcon';
 
 // Add responsive breakpoints
 const breakpoints = {
@@ -60,8 +61,25 @@ function Chatbot() {
   const [uploadButtonRotating, setUploadButtonRotating] = useState(false)
   const messagesEndRef = useRef(null)
 
+  // Calculate initial position
+  const calculateInitialPosition = () => {
+    if (getViewportWidth() <= breakpoints.tablet) {
+      return { x: 0, y: window.innerHeight }
+    } else {
+      const buttonSize = 38; // Size of the floating button when chat is open
+      const chatWidth = 380;
+      const chatHeight = 520;
+      
+      // Position the chat window to touch the floating button with additional offset
+      return { 
+        x: window.innerWidth - chatWidth - buttonSize + 20, // Added 20px offset towards left
+        y: window.innerHeight - chatHeight - 20 // Added 20px offset towards top
+      }
+    }
+  }
+
   // Position state for the chat window (bottom right)
-  const [position, setPosition] = useState({ x: window.innerWidth - 420, y: window.innerHeight - 520 })
+  const [position, setPosition] = useState(calculateInitialPosition())
   const [dragging, setDragging] = useState(false)
   const dragOffset = useRef({ x: 0, y: 0 })
 
@@ -284,7 +302,16 @@ function Chatbot() {
     if (viewport.width <= breakpoints.tablet) {
       setPosition({ x: 0, y: window.innerHeight - (viewport.isMobile ? '90vh' : '75vh') })
     } else {
-      setPosition({ x: window.innerWidth - 485, y: window.innerHeight - 570 })
+      // Adjust position to make the chat window touch the floating button
+      const buttonSize = 38; // Size of the floating button when chat is open
+      const chatWidth = 380;
+      const chatHeight = 520;
+      
+      // Position the chat window with additional offset
+      setPosition({ 
+        x: window.innerWidth - chatWidth - buttonSize + 20, // Added 20px offset towards left
+        y: window.innerHeight - chatHeight - 20 // Added 20px offset towards top
+      })
     }
   }
 
@@ -303,33 +330,71 @@ function Chatbot() {
 
   return (
     <ChatbotContainer>
-      {!open && (
-        <FloatingButton
-          onClick={handleOpen}
-          $isMobile={viewport.isMobile}
-        >
-          💬
-        </FloatingButton>
-      )}
+      {/* Always show the floating button, but position it differently when chat is open */}
+      <FloatingButton
+        onClick={open ? handleClose : handleOpen}
+        $isMobile={viewport.isMobile}
+        className="floating-button"
+        style={{
+          boxShadow: open ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 6px 20px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(74, 144, 226, 0.25)',
+          animation: open ? 'none' : 'pulse 0.8s infinite alternate',
+          opacity: open ? 0.75 : 1, // Reduced opacity when open
+          visibility: 'visible',
+          pointerEvents: 'auto',
+          position: 'fixed',
+          bottom: viewport.isMobile 
+            ? (open ? '19px' : '9px')
+            : (open ? '20px' : '9px'),
+          right: viewport.isMobile 
+            ? (open ? '19px' : '9px')
+            : (open ? '20px' : '9px'),
+          zIndex: open ? 1002 : 1001,
+          transform: 'rotate(0deg)',
+          background: theme === 'dark' 
+            ? (open ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 100%)' : 'linear-gradient(135deg, #3a4050 60%, #4a5060 100%)')
+            : (open ? 'linear-gradient(135deg, #4a90e2 0%, #5a9ae8 100%)' : 'linear-gradient(135deg, #4a90e2 60%, #6aa9f0 100%)'),
+          width: open ? (viewport.isMobile ? '28px' : '34px') : (viewport.isMobile ? '48px' : '56px'),
+          height: open ? (viewport.isMobile ? '28px' : '34px') : (viewport.isMobile ? '48px' : '56px'),
+          fontSize: open ? (viewport.isMobile ? '1rem' : '1.2rem') : (viewport.isMobile ? '1.7rem' : '2rem'),
+          transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+          borderRadius: '50%',
+          transformOrigin: 'center center',
+          filter: open ? 'brightness(0.95)' : 'none' // Slightly dimmer when open
+        }}
+      >
+        {open ? '✕' : '💬'}
+      </FloatingButton>
 
       {open && (
         <div style={{
           position: 'fixed',
-          top: position.y,
-          left: position.x,
+          top: position.y - 30, // Move 25px up towards top (original 20px + 5px more)
+          left: position.x - 30, // Move 25px left towards corner (original 20px + 5px more)
           width: viewport.width <= breakpoints.tablet ? '100%' : '380px',
           height: viewport.width <= breakpoints.tablet ? (viewport.isMobile ? '90vh' : '75vh') : '520px',
           zIndex: 1000,
           color: themeStyles.color,
-          border: 'none', // Remove the border here
+          border: 'none',
           backdropFilter: 'blur(2px)',
           padding: 0,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          boxShadow: theme === 'dark' 
+            ? '0 8px 30px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 0, 0, 0.2)' 
+            : '0 8px 30px rgba(0, 0, 0, 0.15), 0 0 15px rgba(74, 144, 226, 0.1)',
+          borderRadius: viewport.width <= breakpoints.tablet ? '18px 18px 0 0' : '18px',
+          animation: 'fadeSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+          marginBottom: '60px'
         }}>
           <ChatWindow 
             $theme={theme}
             $viewport={viewport}
-            style={{ border: 'none' }} // Add this to ensure no border on the ChatWindow
+            style={{ 
+              border: 'none',
+              background: theme === 'dark' 
+                ? '#2a2e38' // Solid dark background
+                : '#f0f7ff', // Solid light background
+              backgroundImage: 'none' // Explicitly remove any background image
+            }} 
           >
             <ChatHeader 
               theme={theme}
@@ -342,13 +407,19 @@ function Chatbot() {
             <Messages
               $theme={theme}
               $viewport={viewport}
+              style={{
+                background: theme === 'dark' 
+                  ? '#2a2e38' // Solid dark background
+                  : '#f0f7ff', // Solid light background
+                backgroundImage: 'none' // Explicitly remove any background image
+              }}
             >
               {messages.map((msg, i) => (
                 <div key={i} style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  marginBottom: 8, // Increased margin for spacing between message groups
+                  marginBottom: 8,
                 }}>
                   {/* Add name tag above message */}
                   {msg.sender === 'bot' ? (
@@ -382,30 +453,40 @@ function Chatbot() {
                       $theme={theme}
                       $viewport={viewport}
                     >
-                      {msg.text}
-                      {msg.file && (
+                      {msg.isPdf ? (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '4px',
+                          color: msg.sender === 'user' ? '#ffffff' : (theme === 'dark' ? '#f0f4f8' : '#3a4555')
+                        }}>
+                          <PdfIcon size={20} color="#ff5050" />
+                          <span style={{ 
+                            fontStyle: 'italic',
+                            color: msg.sender === 'user' ? '#ffffff' : 'inherit'
+                          }}>
+                            {msg.text}
+                          </span>
+                        </div>
+                      ) : (
+                        msg.text
+                      )}
+                      {msg.file && !msg.isPdf && (
                         <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
-                          {msg.isPdf ? (
-                            <span style={{ 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              gap: '4px',
-                              color: theme === 'dark' ? '#f0f4f8' : '#3a4555'
-                            }}>
-                              <span>📄</span>
-                              <span style={{ fontStyle: 'italic' }}>{msg.file.name}</span>
-                            </span>
-                          ) : (
-                            <span>📎 {msg.file.name}</span>
-                          )}
+                          <span>📎 {msg.file.name}</span>
                         </span>
                       )}
                       <span style={{ 
                         fontSize: '0.7em', 
-                        opacity: 0.7, 
-                        marginLeft: '4px',
+                        opacity: 0.9,
+                        marginLeft: '8px',
                         float: 'right',
-                        marginTop: '4px'
+                        marginTop: '6px',
+                        position: 'relative',
+                        bottom: '-2px',
+                        verticalAlign: 'sub',
+                        color: msg.sender === 'user' ? '#ffffff' : 'inherit',
+                        fontWeight: msg.sender === 'user' ? '500' : 'inherit'
                       }}>
                         {formatTime(msg.time)}
                       </span>
@@ -526,6 +607,7 @@ function Chatbot() {
               viewport={viewport}
               handleSend={handleSend}
               quickReplies={QUICK_REPLIES}
+              hasFilePreview={file !== null}
             />
             
             <InputArea
@@ -534,45 +616,71 @@ function Chatbot() {
             >
               {/* File preview and summarize button */}
               {file && (
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  width: '100%',
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  maxWidth: '90%', // Limit width to create space on both sides
+                  width: '90%', // Set width to be less than 100%
+                  margin: '0 auto 0.5rem', // Center horizontally with bottom margin
                   background: theme === 'dark' ? '#3a4050' : '#e6f0ff',
-                  padding: '0.5rem',
-                  borderRadius: '8px',
-                  marginBottom: '0.5rem'
+                  padding: '0.5rem 0.75rem',
+                  borderRadius: '8px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-                    <span style={{ fontSize: '1.2rem' }}>📄</span>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    flex: 1,
+                    paddingLeft: '4px'
+                  }}>
+                    <PdfIcon size={20} color="#ff5050" />
                     <span style={{ 
-                      fontSize: '0.9rem',
+                      fontSize: '0.95rem',
+                      fontWeight: '400',
                       color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis'
+                      textOverflow: 'ellipsis',
+                      paddingTop: '2px'
                     }}>
                       {file.name}
                     </span>
                   </div>
-                  <button
-                    onClick={() => {
-                      setFile(null);
-                      setFilePreview(null);
-                      setUploadButtonRotating(false);
-                    }}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ×
-                  </button>
+                  <div style={{ display: 'flex', marginRight: '4px' }}>
+                    <button
+                      onClick={() => {
+                        setFile(null);
+                        setFilePreview(null);
+                        setUploadButtonRotating(false);
+                      }}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
+                        cursor: 'pointer',
+                        fontSize: '1.5rem',
+                        padding: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '28px',
+                        height: '28px',
+                        lineHeight: 1
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '0.8rem' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                width: '100%', 
+                gap: '0.4rem', /* Reduced gap */
+                padding: '0 0.2rem'
+              }}>
                 <FileUploadButton 
                   onFileSelect={(fileObj) => {
                     setFile(fileObj);
@@ -580,6 +688,11 @@ function Chatbot() {
                   }}
                   theme={theme}
                   hasFile={file !== null}
+                  style={{ 
+                    flexShrink: 0,
+                    width: viewport.isMobile ? '30px' : '34px', /* Reduced size */
+                    height: viewport.isMobile ? '30px' : '34px' /* Reduced size */
+                  }}
                 />
                 <input
                   value={input}
@@ -592,19 +705,22 @@ function Chatbot() {
                   autoCapitalize="off"
                   style={{
                     flex: 1,
-                    minWidth: 0,
-                    marginRight: '0.5rem',
+                    minWidth: viewport.isMobile ? '140px' : '180px',
+                    maxWidth: viewport.isMobile ? '220px' : '280px',
                     border: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e4ff',
                     background: theme === 'dark' ? '#323742' : '#ffffff',
                     color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-                    borderRadius: 8,
-                    fontSize: viewport.isMobile ? '0.95rem' : '1rem',
-                    padding: viewport.isMobile ? '0.4rem' : '0.5rem',
-                    transition: 'border 0.2s'
+                    borderRadius: 24,
+                    fontSize: viewport.isMobile ? '0.85rem' : '0.9rem', /* Reduced font size */
+                    padding: '0.4rem 0.8rem', /* Reduced padding */
+                    height: viewport.isMobile ? '32px' : '34px', /* Reduced height */
+                    transition: 'border 0.2s, box-shadow 0.2s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    outline: 'none'
                   }}
                 />
                 <SendButton 
-                  handleSend={() => handleSend()} // Explicitly wrap in a function
+                  handleSend={() => handleSend()}
                   input={input}
                   file={file}
                   theme={theme}
@@ -615,13 +731,13 @@ function Chatbot() {
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   className="emoji-button"
                   style={{
-                    marginLeft: '0.5rem',
+                    flexShrink: 0,
                     background: 'transparent',
                     color: theme === 'dark' ? '#f0f4f8' : '#4a90e2',
                     border: 'none',
                     borderRadius: '50%',
-                    width: '44px',
-                    height: '44px',
+                    width: viewport.isMobile ? '32px' : '36px',
+                    height: viewport.isMobile ? '32px' : '36px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -697,6 +813,16 @@ function Chatbot() {
             0% { opacity: 1; }
             50% { opacity: 0.8; }
             100% { opacity: 1; }
+          }
+          @keyframes fadeSlideIn {
+            from { 
+              opacity: 0; 
+              transform: translateY(40px) scale(0.95);
+            }
+            to { 
+              opacity: 1; 
+              transform: translateY(0) scale(1);
+            }
           }
         `}
       </style>

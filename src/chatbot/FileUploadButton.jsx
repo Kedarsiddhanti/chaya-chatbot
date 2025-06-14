@@ -66,34 +66,42 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
         onMouseLeave={() => setIsHovered(false)}
         aria-label="Attach PDF file"
         style={{
-          background: 'transparent',
+          background: isHovered 
+            ? (theme === 'dark' ? '#3a4050' : '#daeaff') // Increased opacity for light theme
+            : 'transparent',
           color: theme === 'dark' ? '#f0f4f8' : '#4a90e2',
-          border: 'none',
+          border: isHovered ? `1px solid ${theme === 'dark' ? '#4a5060' : '#b8d4ff'}` : 'none', // Added border on hover
           borderRadius: '50%',
-          width: '44px',
-          height: '44px',
+          width: '36px',
+          height: '36px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
           padding: 0,
-          boxShadow: 'none',
-          marginRight: '0.5rem',
-          transition: 'transform 0.2s',
-          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)'
+          boxShadow: isHovered 
+            ? (theme === 'dark' 
+                ? '0 3px 10px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' 
+                : '0 3px 10px rgba(74,144,226,0.4), 0 1px 3px rgba(74,144,226,0.3)') // Enhanced shadow
+            : 'none',
+          marginRight: '0.3rem',
+          transition: 'all 0.2s ease',
+          transform: isHovered ? 'translateY(-2px) scale(1.05)' : 'translateY(0) scale(1)', // Added slight scale effect
         }}
       >
         <svg
           ref={svgRef}
           viewBox="0 0 24 24"
           fill="none"
-          width="24"
-          height="24"
+          width="22" // Slightly smaller to accommodate the border
+          height="22" // Slightly smaller to accommodate the border
           style={{
-            transition: 'transform 0.5s ease',
+            transition: 'transform 0.5s ease, stroke 0.2s ease',
             transform: isRotated ? 'rotate(45deg)' : 'rotate(0deg)',
-            stroke: theme === 'dark' ? '#f0f4f8' : '#4a90e2',
-            strokeWidth: 2,
+            stroke: theme === 'dark' 
+              ? (isHovered ? '#ffffff' : '#f0f4f8') // Brighter stroke on hover
+              : (isHovered ? '#4a90e2' : '#4a90e2'),
+            strokeWidth: isHovered ? 2.5 : 2, // Slightly thicker stroke on hover
             strokeLinecap: 'round'
           }}
         >
@@ -105,6 +113,10 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
 };
 
 export default FileUploadButton;
+
+
+
+
 
 
 

@@ -1,8 +1,48 @@
 import React from 'react';
+import styled from 'styled-components';
 import FileUploadButton from './FileUploadButton';
 import SendButton from './SendButton';
 import EmojiPickerButton from './EmojiPickerButton';
 import EmojiPickerContainer from './EmojiPickerContainer';
+import PdfIcon from './PdfIcon';
+
+const StyledInput = styled.input`
+  flex: 1;
+  min-width: ${props => props.isMobile ? '140px' : '180px'};
+  max-width: ${props => props.isMobile ? '220px' : '280px'};
+  border: ${props => props.theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e4ff'};
+  background: ${props => props.theme === 'dark' ? '#323742' : '#ffffff'};
+  color: ${props => props.theme === 'dark' ? '#f0f4f8' : '#3a4555'};
+  border-radius: 24px;
+  font-size: ${props => props.isMobile ? '0.85rem' : '0.9rem'};
+  padding: 0.4rem 0.8rem;
+  height: ${props => props.isMobile ? '32px' : '34px'}; /* Reduced height */
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  outline: none;
+  
+  &:focus {
+    border-color: ${props => props.theme === 'dark' ? '#4a5060' : '#4a90e2'};
+    box-shadow: 0 1px 5px rgba(74, 144, 226, 0.1);
+  }
+  
+  &::placeholder {
+    color: ${props => props.theme === 'dark' ? '#6a7383' : '#a0a8b8'};
+  }
+`;
+
+const InputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 0.4rem; /* Reduced gap */
+  padding: 0 0.2rem;
+  
+  @media (max-width: 480px) {
+    gap: 0.3rem;
+  }
+`;
 
 const ChatInput = ({ 
   input, 
@@ -54,7 +94,7 @@ const ChatInput = ({
             gap: '8px', 
             flex: 1 
           }}>
-            <span style={{ fontSize: '1.2rem' }}>📄</span>
+            <PdfIcon size={20} color="#ff5050" />
             <span style={{ 
               fontSize: '0.9rem',
               color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
@@ -86,12 +126,7 @@ const ChatInput = ({
       )}
       
       {/* Input area with buttons */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '8px', 
-        width: '100%' 
-      }}>
+      <InputContainer>
         <FileUploadButton 
           setFile={setFile} 
           setFilePreview={setFilePreview}
@@ -99,22 +134,14 @@ const ChatInput = ({
           setUploadButtonRotating={setUploadButtonRotating}
           theme={theme}
         />
-        <input
+        <StyledInput
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type a message..."
-          style={{
-            flex: 1,
-            padding: '0.8rem 1rem',
-            borderRadius: '24px',
-            border: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff',
-            background: theme === 'dark' ? '#23272f' : '#ffffff',
-            color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-            outline: 'none',
-            fontSize: '0.95rem'
-          }}
+          isMobile={viewport.isMobile}
+          theme={theme}
         />
         
         <SendButton 
@@ -130,7 +157,7 @@ const ChatInput = ({
           setShowEmojiPicker={setShowEmojiPicker}
           theme={theme}
         />
-      </div>
+      </InputContainer>
       
       <EmojiPickerContainer
         showEmojiPicker={showEmojiPicker}

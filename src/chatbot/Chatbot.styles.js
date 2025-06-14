@@ -82,7 +82,7 @@ export const ChatWindowWrapper = styled.div`
   position: fixed;
   top: ${props => props.$position.y}px;
   left: ${props => props.$position.x}px;
-  width: ${props => props.$viewport.width <= 768 ? '100%' : '380px'};
+  width: ${props => props.$viewport.width <= 768 ? '100%' : '340px'}; /* Reduced from 380px to 340px */
   height: ${props => props.$viewport.width <= 768 
     ? (props.$viewport.isMobile ? '90vh' : '75vh') 
     : '520px'};
@@ -193,16 +193,31 @@ export const CloseButton = styled.button`
 export const Messages = styled.div`
   flex: 1;
   padding: ${props => props.$viewport.isMobile ? '0.8rem' : '1rem'};
-  overflow-y: auto;
+  overflow-y: scroll;
   background: ${props => props.$theme === 'dark'
-    ? 'repeating-linear-gradient(135deg, #2a2e38, #2a2e38 20px, #323742 20px, #323742 40px)'
-    : 'linear-gradient(135deg, #f0f7ff, #e8f4ff)'};
+    ? '#2a2e38' /* Removed the repeating linear gradient pattern */
+    : '#f0f7ff'}; /* Simplified to a solid color */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   width: 100%;
   box-sizing: border-box;
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.$theme === 'dark' ? '#4a5060 #2a2e38' : '#c0d5f0 #e8f4ff'};
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: ${props => props.$theme === 'dark' ? '#2a2e38' : '#e8f4ff'};
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.$theme === 'dark' ? '#4a5060' : '#c0d5f0'};
+    border-radius: 4px;
+  }
 `
 
 export const MessageContainer = styled.div`
@@ -221,14 +236,13 @@ export const Avatar = styled.div`
 export const MessageBubble = styled.div`
   max-width: ${props => props.$viewport.isMobile ? '75%' : '80%'};
   padding: ${props => props.$viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem'};
-  border-radius: 18px;
   font-size: ${props => props.$viewport.isMobile ? '0.95rem' : '1rem'};
   align-self: ${props => props.$sender === 'user' ? 'flex-end' : 'flex-start'};
   background: ${props => {
     if (props.$sender === 'user') {
       return props.$theme === 'dark'
-        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)'
-        : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)';
+        ? 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)' // Match header gradient
+        : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)'; // Same for light theme
     } else {
       return props.$theme === 'dark'
         ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)'
@@ -237,21 +251,30 @@ export const MessageBubble = styled.div`
   }};
   color: ${props => {
     if (props.$sender === 'user') {
-      return props.$theme === 'dark' ? '#f0f4f8' : '#fff';
+      return '#ffffff'; // White text for user messages in both themes
     } else {
       return props.$theme === 'dark' ? '#f0f4f8' : '#3a4555';
     }
   }};
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: ${props => props.$sender === 'user' ? 
+    '0 2px 5px rgba(0,0,0,0.1)' : 
+    '0 1px 3px rgba(0,0,0,0.04)'};
   position: relative;
   animation: ${fadeInBubble} 0.4s;
   border: ${props => {
     if (props.$sender === 'user') {
-      return props.$theme === 'dark' ? '1px solid #4a5060' : '1px solid rgb(133, 184, 242)';
+      return props.$theme === 'dark' 
+        ? '1px solid rgb(133, 184, 242)' // Matching border for dark theme
+        : '1px solid rgb(133, 184, 242)'; // Matching border for light theme
     } else {
       return props.$theme === 'dark' ? '1px solid #4a5060' : '1px solid #d8e6ff';
     }
   }};
+  
+  /* Adjust border radius to create speech bubble effect */
+  border-radius: 18px;
+  border-bottom-right-radius: ${props => props.$sender === 'user' ? '0' : '18px'};
+  border-bottom-left-radius: ${props => props.$sender === 'user' ? '18px' : '0'};
 `
 
 export const TypingIndicatorContainer = styled(MessageContainer)`
@@ -293,9 +316,9 @@ export const InputArea = styled.div`
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px; /* Reduced gap */
   background: ${props => props.$theme === 'dark' ? '#2a2e38' : '#f5faff'};
-  padding: ${props => props.$viewport.isMobile ? '0.6rem' : '0.75rem'};
+  padding: ${props => props.$viewport.isMobile ? '0.5rem' : '0.6rem'}; /* Reduced padding */
   border-top: ${props => props.$theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff'};
   border-bottom-left-radius: ${props => props.$viewport.width <= 768 ? 0 : '18px'};
   border-bottom-right-radius: ${props => props.$viewport.width <= 768 ? 0 : '18px'};
@@ -344,19 +367,35 @@ export const RemoveFileButton = styled.button`
 export const InputControls = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 0.4rem; /* Reduced gap */
   width: 100%;
+  padding: 0 0.2rem;
 `
 
 export const TextInput = styled.input`
   flex: 1;
-  padding: 0.8rem 1rem;
-  border-radius: 24px;
+  min-width: ${props => props.$viewport.isMobile ? '140px' : '180px'};
+  max-width: ${props => props.$viewport.isMobile ? '220px' : '280px'};
   border: ${props => props.$theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff'};
   background: ${props => props.$theme === 'dark' ? '#23272f' : '#ffffff'};
   color: ${props => props.$theme === 'dark' ? '#f0f4f8' : '#3a4555'};
   outline: none;
-  font-size: 0.95rem;
+  font-size: 0.85rem; /* Reduced font size */
+  padding: 0.4rem 0.8rem; /* Reduced padding */
+  height: ${props => props.$viewport.isMobile ? '32px' : '34px'}; /* Reduced height */
+  border-radius: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: border 0.2s, box-shadow 0.2s;
+  
+  &:focus {
+    border-color: ${props => props.$theme === 'dark' ? '#4a5060' : '#4a90e2'};
+    box-shadow: 0 1px 5px rgba(74, 144, 226, 0.1);
+  }
+  
+  &::placeholder {
+    color: ${props => props.$theme === 'dark' ? '#6a7383' : '#a0a8b8'};
+  }
 `
 
 export const EmojiPickerWrapper = styled.div`

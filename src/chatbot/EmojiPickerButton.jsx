@@ -7,10 +7,10 @@ const ResponsiveButton = styled.button`
   color: ${props => props.theme === 'dark' ? '#f0f4f8' : '#4a90e2'};
   border: none;
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
+  width: 36px; /* Reduced size */
+  height: 36px; /* Reduced size */
+  min-width: 36px; /* Reduced size */
+  min-height: 36px; /* Reduced size */
   display: flex;
   align-items: center;
   justify-content: center;

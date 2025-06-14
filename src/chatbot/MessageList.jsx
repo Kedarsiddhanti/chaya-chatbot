@@ -1,4 +1,5 @@
 import React from 'react';
+import PdfIcon from './PdfIcon';
 
 function formatTime(date) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -61,7 +62,7 @@ const MessageList = ({ messages, theme, viewport, botTyping }) => {
           >
             {msg.isPdf ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.5rem' }}>📄</span>
+                <PdfIcon size={20} color="#ff5050" />
                 <span>{msg.text}</span>
               </div>
             ) : (
@@ -143,3 +144,5 @@ const MessageList = ({ messages, theme, viewport, botTyping }) => {
 };
 
 export default MessageList;
+
+

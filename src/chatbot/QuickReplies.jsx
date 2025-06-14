@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies }) => {
+const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies, hasFilePreview }) => {
   const [showQuickReplies, setShowQuickReplies] = useState(false);
   
   if (!userName) return null;
@@ -10,12 +10,18 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies }) =
     ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)'
     : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)';
   
+  // Position higher when file preview is present to avoid overlap
+  const bottomPosition = hasFilePreview 
+    ? (viewport.isMobile ? '130px' : '140px')  // Increased to avoid overlap with file preview
+    : (viewport.isMobile ? '70px' : '80px');   // Keep the same for when no file preview
+  
   return (
     <div style={{
       position: 'absolute',
-      bottom: viewport.isMobile ? '70px' : '80px',
-      right: viewport.isMobile ? '16px' : '24px',
-      zIndex: 5
+      bottom: bottomPosition,
+      right: viewport.isMobile ? '20px' : '35px',
+      zIndex: 5,
+      filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.15))' // Added drop shadow to the entire component
     }}>
       {/* Floating button to show/hide quick replies */}
       <button
@@ -31,19 +37,19 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies }) =
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          boxShadow: '0 3px 10px rgba(0,0,0,0.25)', // Enhanced shadow
           fontSize: viewport.isMobile ? '1.2rem' : '1.4rem',
           transition: 'transform 0.2s, box-shadow 0.2s',
           transform: showQuickReplies ? 'rotate(45deg)' : 'rotate(0deg)'
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)';
+          e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)'; // Stronger shadow on hover
           e.currentTarget.style.transform = showQuickReplies 
             ? 'rotate(45deg) scale(1.05)' 
             : 'scale(1.05)';
         }}
         onMouseOut={(e) => {
-          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+          e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.25)'; // Return to enhanced shadow
           e.currentTarget.style.transform = showQuickReplies 
             ? 'rotate(45deg)' 
             : 'rotate(0deg)';
@@ -75,8 +81,8 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies }) =
           borderRadius: '12px',
           padding: '12px',
           boxShadow: theme === 'dark' 
-            ? '0 4px 16px rgba(0,0,0,0.3)' 
-            : '0 4px 16px rgba(0,0,0,0.15)',
+            ? '0 6px 20px rgba(0,0,0,0.35)' 
+            : '0 6px 20px rgba(0,0,0,0.2)',
           border: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff',
           display: 'flex',
           flexDirection: 'column',
@@ -142,6 +148,10 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies }) =
 };
 
 export default QuickReplies;
+
+
+
+
 
 
 
