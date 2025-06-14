@@ -40,7 +40,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '10px' // Increased gap for better spacing
+        gap: '10px'
       }}>
         <div
           style={{
@@ -73,19 +73,34 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
             }}
           />
         </div>
-        <h3 style={{
-          margin: 0,
-          fontWeight: 500,
-          fontSize: viewport.isMobile ? '1rem' : '1.1rem',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis'
-        }}>Chaya Assistant</h3>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{
+            margin: 0,
+            fontWeight: 500,
+            fontSize: viewport.isMobile ? '1rem' : '1.1rem',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>Chaya Bot</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: 'limegreen',
+            }} />
+            <span style={{
+              fontSize: '0.75rem',
+              color: theme === 'dark' ? '#d0f0c0' : '#ffffff',
+              opacity: 0.8
+            }}>Online</span>
+          </div>
+        </div>
       </div>
       <div style={{ 
         display: 'flex', 
         alignItems: 'center',
-        gap: '16px' // Increased gap between buttons
+        gap: '16px'
       }}>
         <button
           onClick={toggleTheme}
@@ -95,25 +110,16 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
             color: 'white',
             cursor: 'pointer',
             padding: 0,
-            width: '24px', // Fixed width
-            height: '24px', // Fixed height
+            width: '24px',
+            height: '24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginRight: '2px' // Small right margin
+            marginRight: '2px'
           }}
         >
           {theme === 'dark' ? (
-            <svg 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="white" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="5"></circle>
               <line x1="12" y1="1" x2="12" y2="3"></line>
               <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -125,16 +131,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
               <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
           ) : (
-            <svg 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="white" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
           )}
@@ -142,7 +139,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
         <button
           onClick={handleClose}
           style={{
-            background: 'transparent', // Changed from rgba(255,255,255,0.2) to transparent
+            background: 'transparent',
             border: 'none',
             color: 'white',
             fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
