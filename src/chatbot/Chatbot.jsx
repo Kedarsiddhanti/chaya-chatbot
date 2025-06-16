@@ -610,77 +610,104 @@ function Chatbot() {
               hasFilePreview={file !== null}
             />
             
-            <InputArea
-              $theme={theme}
-              $viewport={viewport}
-            >
-              {/* File preview and summarize button */}
-              {file && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  maxWidth: '90%', // Limit width to create space on both sides
-                  width: '90%', // Set width to be less than 100%
-                  margin: '0 auto 0.5rem', // Center horizontally with bottom margin
-                  background: theme === 'dark' ? '#3a4050' : '#e6f0ff',
-                  padding: '0.5rem 0.75rem',
-                  borderRadius: '8px'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px', 
-                    flex: 1,
-                    paddingLeft: '4px'
-                  }}>
-                    <PdfIcon size={20} color="#ff5050" />
-                    <span style={{ 
-                      fontSize: '0.95rem',
-                      fontWeight: '400',
-                      color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      paddingTop: '2px'
-                    }}>
-                      {file.name}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', marginRight: '4px' }}>
-                    <button
-                      onClick={() => {
-                        setFile(null);
-                        setFilePreview(null);
-                        setUploadButtonRotating(false);
-                      }}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-                        cursor: 'pointer',
-                        fontSize: '1.5rem',
-                        padding: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '28px',
-                        height: '28px',
-                        lineHeight: 1
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              )}
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                width: '100%', 
-                gap: '0.4rem', /* Reduced gap */
-                padding: '0 0.2rem'
-              }}>
+            <InputArea $theme={theme} $viewport={viewport}>
+  {/* File preview and summarize button */}
+  {file && (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      maxWidth: '90%',
+      width: '90%',
+      margin: '0 auto 0.5rem',
+      background: theme === 'dark' ? '#3a4050' : '#e6f0ff',
+      padding: '0.5rem 0.75rem',
+      borderRadius: '8px'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        flex: 1,
+        paddingLeft: '4px'
+      }}>
+        <PdfIcon size={20} color="#ff5050" />
+        <span style={{
+          fontSize: '0.95rem',
+          fontWeight: '400',
+          color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          paddingTop: '2px',
+          maxWidth: '130px'
+        }}>
+          {file.name}
+        </span>
+        <button
+          onClick={async () => {
+            try {
+              const summary = await summarizePdf(file);
+              alert(summary); // Replace this with your display method
+            } catch (err) {
+              alert("Summarization failed");
+            }
+          }}
+          style={{
+            marginLeft: '8px',
+            background: theme === 'dark' ? '#4fc3f7' : '#42a5f5', // Light blue background
+            border: 'none',
+            borderRadius: '4px',
+            color: '#ffffff', // White text
+            fontSize: '0.8rem',
+            padding: '4px 10px',
+            cursor: 'pointer',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 500
+          }}
+        >
+          Summarize
+        </button>
+      </div>
+      <div style={{ display: 'flex', marginLeft: '8px' }}>
+        <button
+          onClick={() => {
+            setFile(null);
+            setFilePreview(null);
+            setUploadButtonRotating(false);
+          }}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
+            cursor: 'pointer',
+            fontSize: '1.5rem',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '28px',
+            height: '28px',
+            lineHeight: 1
+          }}
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  )}
+
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    gap: '0.4rem',
+    padding: '0 0.2rem'
+  }}>
+
                 <FileUploadButton 
                   onFileSelect={(fileObj) => {
                     setFile(fileObj);
