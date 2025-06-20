@@ -87,24 +87,38 @@ function FilePreviewWithSummarize({
             ))}
           </select>
           <button
-            onClick={handleSummarize}
-            style={{
-              background: theme === 'dark' ? '#4fc3f7' : '#42a5f5',
-              border: 'none',
-              borderRadius: '4px',
-              color: '#ffffff',
-              fontSize: isMobile ? '0.75rem' : '0.8rem',
-              padding: isMobile ? '3px 8px' : '4px 10px',
-              cursor: 'pointer',
-              height: isMobile ? '24px' : '28px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 500
-            }}
-          >
-            Summarize
-          </button>
+  onClick={handleSummarize}
+  style={{
+    background: theme === 'dark' ? '#4fc3f7' : '#42a5f5',
+    border: 'none',
+    borderRadius: '4px',
+    color: '#ffffff',
+    fontSize: isMobile ? '0.75rem' : '0.8rem',
+    padding: isMobile ? '3px 8px' : '4px 10px',
+    cursor: 'pointer',
+    height: isMobile ? '24px' : '28px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 500,
+    transition: 'transform 0.1s ease-in-out, background 0.2s, box-shadow 0.2s'
+  }}
+  onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+  onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = 'scale(1)';
+    e.currentTarget.style.boxShadow = 'none';
+    e.currentTarget.style.background = theme === 'dark' ? '#4fc3f7' : '#42a5f5';
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+    e.currentTarget.style.background = theme === 'dark' ? '#81d4fa' : '#64b5f6'; // lighter color
+  }}
+>
+  Summarize
+</button>
+
+
         </div>
       </div>
       {/* Remove file button */}
