@@ -1,6 +1,6 @@
-import React from 'react'
-import Lottie from 'lottie-react'
-import botAnimation from '../assets/bot_Animation_3.json'
+import React, { useState } from 'react';
+import Lottie from 'lottie-react';
+import botAnimation from '../assets/bot_Animation_3.json';
 
 // Inject keyframe animations for bot avatar effects
 const styles = `
@@ -16,10 +16,10 @@ const styles = `
 }
 `
 if (typeof document !== 'undefined' && !document.getElementById('bot-animation-style')) {
-  const styleTag = document.createElement('style')
-  styleTag.id = 'bot-animation-style'
-  styleTag.innerHTML = styles
-  document.head.appendChild(styleTag)
+  const styleTag = document.createElement('style');
+  styleTag.id = 'bot-animation-style';
+  styleTag.innerHTML = styles;
+  document.head.appendChild(styleTag);
 }
 
 /**
@@ -28,6 +28,9 @@ if (typeof document !== 'undefined' && !document.getElementById('bot-animation-s
  * theme toggle, and close button.
  */
 const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding }) => {
+  const [themeHovered, setThemeHovered] = useState(false);
+  const [closeHovered, setCloseHovered] = useState(false);
+
   return (
     <div style={{
       display: 'flex',
@@ -107,27 +110,30 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '16px'
+        gap: viewport.isMobile ? '12px' : '16px'
       }}>
         <button
           onClick={toggleTheme}
+          onMouseEnter={() => setThemeHovered(true)}
+          onMouseLeave={() => setThemeHovered(false)}
+          title={theme === 'dark' ? "Switch to light mode" : "Switch to dark mode"}
           style={{
-            background: 'transparent',
+            background: themeHovered ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
             border: 'none',
-            color: 'white',
-            cursor: 'pointer',
-            padding: 0,
-            width: '24px',
-            height: '24px',
+            borderRadius: '50%',
+            width: viewport.isMobile ? '28px' : '32px',
+            height: viewport.isMobile ? '28px' : '32px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginRight: '2px'
+            cursor: 'pointer',
+            padding: 0,
+            transition: 'all 0.25s ease',
+            transform: themeHovered ? 'scale(1.1)' : 'scale(1)'
           }}
         >
           {theme === 'dark' ? (
-            // Sun icon for light mode
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width={viewport.isMobile ? 16 : 18} height={viewport.isMobile ? 16 : 18} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="5"></circle>
               <line x1="12" y1="1" x2="12" y2="3"></line>
               <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -139,35 +145,48 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
               <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
           ) : (
-            // Moon icon for dark mode
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width={viewport.isMobile ? 16 : 18} height={viewport.isMobile ? 16 : 18} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
           )}
         </button>
         <button
           onClick={handleClose}
+          onMouseEnter={() => setCloseHovered(true)}
+          onMouseLeave={() => setCloseHovered(false)}
+          title="Close chat"
           style={{
-            background: 'transparent',
+            background: closeHovered ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
             border: 'none',
-            color: 'white',
-            fontSize: viewport.isMobile ? '1.2rem' : '1.3rem',
-            cursor: 'pointer',
-            padding: '0',
-            width: viewport.isMobile ? '22px' : '24px',
-            height: viewport.isMobile ? '22px' : '24px',
             borderRadius: '50%',
+            width: viewport.isMobile ? '28px' : '32px',
+            height: viewport.isMobile ? '28px' : '32px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            lineHeight: 1
+            cursor: 'pointer',
+            padding: 0,
+            transition: 'all 0.25s ease',
+            transform: closeHovered ? 'scale(1.1)' : 'scale(1)'
           }}
         >
-          ✕
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={viewport.isMobile ? 16 : 18}
+            height={viewport.isMobile ? 16 : 18}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChatHeader
+export default ChatHeader;
