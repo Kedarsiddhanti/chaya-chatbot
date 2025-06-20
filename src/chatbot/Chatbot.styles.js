@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components'
 
-// Animation for chat window open/close
+// Animation for chat window entrance
 const fadeSlideIn = keyframes`
   from {
     opacity: 0;
@@ -12,141 +12,146 @@ const fadeSlideIn = keyframes`
   }
 `
 
-export const ChatbotContainer = styled.div`
-  position: static;
-  z-index: 1000;
+// Animation for floating button pulse
+const pulse = keyframes`
+  0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  100% { transform: scale(1.08); box-shadow: 0 6px 16px rgba(74,144,226,0.35); }
 `
 
+// Animation for message bubble fade-in
+const fadeInBubble = keyframes`
+  from { opacity: 0; transform: translateY(10px) scale(0.98);}
+  to { opacity: 1; transform: none;}
+`
+
+// Animation for typing indicator dots
+const blink = keyframes`
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.3; }
+`
+
+// Container for the chatbot widget
+export const ChatbotContainer = styled.div`
+  z-index: 1000;
+  position: static;
+`
+
+// Floating chat button (shows when chat is closed)
 export const FloatingButton = styled.button`
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
+  bottom: ${props => props.$isMobile ? '16px' : '24px'};
+  right: ${props => props.$isMobile ? '16px' : '24px'};
+  width: ${props => props.$isMobile ? '48px' : '56px'};
+  height: ${props => props.$isMobile ? '48px' : '56px'};
   border-radius: 50%;
-  background: linear-gradient(135deg, #007bff 60%, #00c6ff 100%);
+  background: linear-gradient(135deg, #4a90e2 60%, #6aa9f0 100%);
   color: #fff;
   border: none;
-  font-size: 2rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  font-size: ${props => props.$isMobile ? '1.7rem' : '2rem'};
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
+  animation: ${pulse} 0.8s infinite alternate;
   &:hover {
-    background: linear-gradient(135deg, #0056b3 60%, #00aaff 100%);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    background: linear-gradient(135deg, #3a80d2 0%, #4a8ad8 50%, #5a99e0 100%);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
   }
 `
 
+// Main chat window container, responsive to viewport
 export const ChatWindow = styled.div`
-  width: 320px;
-  height: 420px;
-  background: 
-    linear-gradient(120deg, #fafdff 60%, #e3f0ff 100%),
-    repeating-linear-gradient(135deg, #f7f7f7, #f7f7f7 20px, #f0f4ff 20px, #f0f4ff 40px);
-  border-radius: 22px;
-  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18), 0 1.5px 0 #e0eaff;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  background: ${({ $theme }) => $theme === 'dark' ? '#2a2e38' : '#f0f7ff'};
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1.5px solid #e0eaff;
-  animation: ${fadeSlideIn} 0.4s cubic-bezier(.4,1.2,.6,1) both;
-`
-
-export const Header = styled.div`
-  background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-  color: #fff;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
-  font-size: 1.1rem;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  border-top-left-radius: 22px;
-  border-top-right-radius: 22px;
-  border-bottom: 1.5px solid #e0eaff;
-`
-
-export const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: color 0.2s;
-  &:hover {
-    color: #e0eaff;
+  @media (min-width: 481px) {
+    width: 95vw;
+    max-width: 420px;
+    height: 80vh;
+    border-radius: 18px;
   }
+  @media (min-width: 769px) {
+    width: 380px;
+    height: 520px;
+    border-radius: 18px;
+  }
+  animation: ${fadeSlideIn} 0.4s cubic-bezier(.4,1.2,.6,1) both;
+  box-sizing: border-box;
 `
 
+// Message list area, scrollable and responsive
 export const Messages = styled.div`
   flex: 1;
-  padding: 1rem;
+  padding: ${props => props.$viewport.isMobile ? '0.8rem' : '1rem'};
   overflow-y: auto;
-  background: 
-    repeating-linear-gradient(135deg, #f7f7f7, #f7f7f7 20px, #f0f4ff 20px, #f0f4ff 40px);
+  background: ${props => props.$theme === 'dark'
+    ? '#2a2e38'
+    : '#f0f7ff'};
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  /* Subtle inner shadow for depth */
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.$theme === 'dark' ? '#4a5060 #2a2e38' : '#c0d5f0 #e8f4ff'};
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: ${props => props.$theme === 'dark' ? '#2a2e38' : '#e8f4ff'};
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.$theme === 'dark' ? '#4a5060' : '#c0d5f0'};
+    border-radius: 4px;
+  }
 `
 
+// Individual message bubble, styled for user/bot and responsive
 export const MessageBubble = styled.div`
-  max-width: 80%;
-  padding: 0.5rem 1rem;
+  max-width: ${props => props.$viewport.isMobile ? '90vw' : '80%'};
+  padding: ${props => props.$viewport.isMobile ? '0.4rem 0.8rem' : '0.5rem 1rem'};
+  font-size: ${props => props.$viewport.isMobile ? '0.95rem' : '1rem'};
+  align-self: ${props => props.$sender === 'user' ? 'flex-end' : 'flex-start'};
+  background: ${props => {
+    if (props.$sender === 'user') {
+      return props.$theme === 'dark'
+        ? 'linear-gradient(90deg, #4a6da0 70%, #5a7db0 100%)'
+        : 'linear-gradient(90deg, #4a90e2 70%, #6aa9f0 100%)';
+    } else {
+      return props.$theme === 'dark'
+        ? 'linear-gradient(90deg, #2a2f3a 70%, #3a3f4b 100%)'
+        : 'linear-gradient(90deg, #ffffff 70%, #f8fbff 100%)';
+    }
+  }};
+  color: ${props => props.$sender === 'user'
+    ? '#fff'
+    : (props.$theme === 'dark' ? '#f0f4f8' : '#3a4555')};
   border-radius: 18px;
-  font-size: 1rem;
-  align-self: ${({ $sender }) => ($sender === 'user' ? 'flex-end' : 'flex-start')};
-  background: ${({ $sender }) =>
-    $sender === 'user'
-      ? 'linear-gradient(90deg, #007bff 70%, #00c6ff 100%)'
-      : 'linear-gradient(90deg, #e5e5ea 70%, #f0f4ff 100%)'};
-  color: ${({ $sender }) => ($sender === 'user' ? '#fff' : '#222')};
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  position: relative;
+  border-bottom-right-radius: ${props => props.$sender === 'user' ? '0' : '18px'};
+  border-bottom-left-radius: ${props => props.$sender === 'user' ? '18px' : '0'};
   margin-bottom: 2px;
-  animation: fadeIn 0.4s;
-  border: ${({ $sender }) => ($sender === 'user' ? '1.5px solid #b3e0ff' : '1.5px solid #e0eaff')};
+  word-break: break-word;
+  white-space: pre-wrap;
+  animation: ${fadeInBubble} 0.4s;
 `
 
+// Input area at the bottom of the chat window
 export const InputArea = styled.div`
+  width: 100%;
+  max-width: 100vw;
   display: flex;
   flex-direction: column;
-  padding: 0.75rem;
-  background: #fff;
-  border-top: 1.5px solid #e0eaff;
-  border-bottom-left-radius: 22px;
-  border-bottom-right-radius: 22px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
-  gap: 0.5rem;
-  input {
-    flex: 1;
-    border: 1.5px solid #cce0ff;
-    border-radius: 8px;
-    padding: 0.5rem;
-    font-size: 1rem;
-    background: #fafdff;
-    transition: border 0.2s;
-    &:focus {
-      border: 1.5px solid #007bff;
-      outline: none;
-    }
-  }
-  button {
-    background: linear-gradient(90deg, #007bff 70%, #00c6ff 100%);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-    font-weight: 600;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    transition: background 0.2s;
-    &:hover {
-      background: linear-gradient(90deg, #0056b3 70%, #00aaff 100%);
-    }
-  }
+  gap: 6px;
+  background: ${props => props.$theme === 'dark' ? '#2a2e38' : '#f5faff'};
+  padding: ${props => props.$viewport.isMobile ? '0.5rem' : '0.6rem'};
+  border-top: ${props => props.$theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff'};
+  border-bottom-left-radius: ${props => props.$viewport.width <= 768 ? 0 : '18px'};
+  border-bottom-right-radius: ${props => props.$viewport.width <= 768 ? 0 : '18px'};
+  position: relative;
+  box-sizing: border-box;
 `
