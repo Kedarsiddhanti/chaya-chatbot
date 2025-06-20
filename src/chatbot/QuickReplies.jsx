@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react'
 
+/**
+ * QuickReplies renders a floating button that toggles a list of quick reply options.
+ * When a reply is clicked, it sends the message and closes the list.
+ */
 const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies, hasFilePreview }) => {
-  const [showQuickReplies, setShowQuickReplies] = useState(false);
-  
-  if (!userName) return null;
-  
-  // Match header gradient colors
+  const [showQuickReplies, setShowQuickReplies] = useState(false)
+
+  if (!userName) return null
+
   const headerGradient = theme === 'dark'
     ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 50%, #5a6070 100%)'
-    : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)';
-  
-  // Position higher when file preview is present to avoid overlap
-  const bottomPosition = hasFilePreview 
-    ? (viewport.isMobile ? '130px' : '140px')  // Increased to avoid overlap with file preview
-    : (viewport.isMobile ? '70px' : '80px');   // Keep the same for when no file preview
-  
+    : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)'
+
+  const bottomPosition = hasFilePreview
+    ? (viewport.isMobile ? '130px' : '140px')
+    : (viewport.isMobile ? '70px' : '80px')
+
   return (
     <div style={{
       position: 'absolute',
       bottom: bottomPosition,
       right: viewport.isMobile ? '20px' : '35px',
       zIndex: 5,
-      filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.15))' // Added drop shadow to the entire component
+      filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.15))'
     }}>
-      {/* Floating button to show/hide quick replies */}
+      {/* Toggle button for quick replies */}
       <button
         onClick={() => setShowQuickReplies(!showQuickReplies)}
         style={{
@@ -37,41 +39,19 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies, has
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          boxShadow: '0 3px 10px rgba(0,0,0,0.25)', // Enhanced shadow
+          boxShadow: '0 3px 10px rgba(0,0,0,0.25)',
           fontSize: viewport.isMobile ? '1.2rem' : '1.4rem',
           transition: 'transform 0.2s, box-shadow 0.2s',
           transform: showQuickReplies ? 'rotate(45deg)' : 'rotate(0deg)'
         }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)'; // Stronger shadow on hover
-          e.currentTarget.style.transform = showQuickReplies 
-            ? 'rotate(45deg) scale(1.05)' 
-            : 'scale(1.05)';
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.25)'; // Return to enhanced shadow
-          e.currentTarget.style.transform = showQuickReplies 
-            ? 'rotate(45deg)' 
-            : 'rotate(0deg)';
-        }}
       >
         {showQuickReplies ? '✕' : (
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
           </svg>
         )}
       </button>
-      
-      {/* Quick replies popup */}
       {showQuickReplies && (
         <div style={{
           position: 'absolute',
@@ -80,8 +60,8 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies, has
           background: theme === 'dark' ? '#2a2e38' : '#f0f7ff',
           borderRadius: '12px',
           padding: '12px',
-          boxShadow: theme === 'dark' 
-            ? '0 6px 20px rgba(0,0,0,0.35)' 
+          boxShadow: theme === 'dark'
+            ? '0 6px 20px rgba(0,0,0,0.35)'
             : '0 6px 20px rgba(0,0,0,0.2)',
           border: theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff',
           display: 'flex',
@@ -104,8 +84,8 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies, has
             <button
               key={idx}
               onClick={() => {
-                handleSend(reply);
-                setShowQuickReplies(false);
+                handleSend(reply)
+                setShowQuickReplies(false)
               }}
               style={{
                 background: headerGradient,
@@ -119,23 +99,23 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies, has
                 position: 'relative',
                 overflow: 'hidden',
                 transition: 'transform 0.2s, box-shadow 0.2s',
-                boxShadow: theme === 'dark' 
-                  ? '0 2px 4px rgba(0,0,0,0.2)' 
+                boxShadow: theme === 'dark'
+                  ? '0 2px 4px rgba(0,0,0,0.2)'
                   : '0 2px 6px rgba(74,144,226,0.2)',
                 textAlign: 'left',
                 width: '100%'
               }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 4px 8px rgba(0,0,0,0.3)' 
-                  : '0 4px 12px rgba(74,144,226,0.3)';
+              onMouseOver={e => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = theme === 'dark'
+                  ? '0 4px 8px rgba(0,0,0,0.3)'
+                  : '0 4px 12px rgba(74,144,226,0.3)'
               }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 2px 4px rgba(0,0,0,0.2)' 
-                  : '0 2px 6px rgba(74,144,226,0.2)';
+              onMouseOut={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = theme === 'dark'
+                  ? '0 2px 4px rgba(0,0,0,0.2)'
+                  : '0 2px 6px rgba(74,144,226,0.2)'
               }}
             >
               {reply}
@@ -144,16 +124,7 @@ const QuickReplies = ({ userName, theme, viewport, handleSend, quickReplies, has
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default QuickReplies;
-
-
-
-
-
-
-
-
-
+export default QuickReplies

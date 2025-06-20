@@ -1,56 +1,56 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react'
 
-"use no memo";
-
+/**
+ * FileUploadButton allows users to select and upload a PDF file.
+ * Shows a rotating plus icon on click and only accepts PDF files.
+ */
 const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
-  const svgRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const [isRotated, setIsRotated] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const svgRef = useRef(null)
+  const fileInputRef = useRef(null)
+  const [isRotated, setIsRotated] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
-  // Rotate on click
+  // Handle button click: rotate icon and open file dialog
   const handleClick = () => {
     if (fileInputRef.current) {
-      setIsRotated(true); // Start rotation
-      fileInputRef.current.value = ''; // Reset
-      fileInputRef.current.click();    // Open dialog
+      setIsRotated(true)
+      fileInputRef.current.value = ''
+      fileInputRef.current.click()
     }
-  };
+  }
 
-  // Reset rotation when dialog closes
+  // Reset rotation and handle file selection
   useEffect(() => {
-    const fileInput = fileInputRef.current;
+    const fileInput = fileInputRef.current
 
     const handleBlur = () => {
-      setTimeout(() => setIsRotated(false), 200); // Give time for selection
-    };
+      setTimeout(() => setIsRotated(false), 200)
+    }
 
     const handleFileChange = (e) => {
-      const fileObj = e.target.files[0];
-
+      const fileObj = e.target.files[0]
       if (fileObj && fileObj.type !== 'application/pdf') {
-        alert('Only PDF files are allowed.');
-        e.target.value = null;
-        setIsRotated(false);
-        return;
+        alert('Only PDF files are allowed.')
+        e.target.value = null
+        setIsRotated(false)
+        return
       }
-
-      onFileSelect(fileObj || null);
-      setIsRotated(false); // Reset icon even on success
-    };
+      onFileSelect(fileObj || null)
+      setIsRotated(false)
+    }
 
     if (fileInput) {
-      fileInput.addEventListener('blur', handleBlur);
-      fileInput.addEventListener('change', handleFileChange);
+      fileInput.addEventListener('blur', handleBlur)
+      fileInput.addEventListener('change', handleFileChange)
     }
 
     return () => {
       if (fileInput) {
-        fileInput.removeEventListener('blur', handleBlur);
-        fileInput.removeEventListener('change', handleFileChange);
+        fileInput.removeEventListener('blur', handleBlur)
+        fileInput.removeEventListener('change', handleFileChange)
       }
-    };
-  }, [onFileSelect]);
+    }
+  }, [onFileSelect])
 
   return (
     <>
@@ -66,11 +66,11 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
         onMouseLeave={() => setIsHovered(false)}
         aria-label="Attach PDF file"
         style={{
-          background: isHovered 
-            ? (theme === 'dark' ? '#3a4050' : '#daeaff') // Increased opacity for light theme
+          background: isHovered
+            ? (theme === 'dark' ? '#3a4050' : '#daeaff')
             : 'transparent',
           color: theme === 'dark' ? '#f0f4f8' : '#4a90e2',
-          border: isHovered ? `1px solid ${theme === 'dark' ? '#4a5060' : '#b8d4ff'}` : 'none', // Added border on hover
+          border: isHovered ? `1px solid ${theme === 'dark' ? '#4a5060' : '#b8d4ff'}` : 'none',
           borderRadius: '50%',
           width: '36px',
           height: '36px',
@@ -79,29 +79,29 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
           justifyContent: 'center',
           cursor: 'pointer',
           padding: 0,
-          boxShadow: isHovered 
-            ? (theme === 'dark' 
-                ? '0 3px 10px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' 
-                : '0 3px 10px rgba(74,144,226,0.4), 0 1px 3px rgba(74,144,226,0.3)') // Enhanced shadow
+          boxShadow: isHovered
+            ? (theme === 'dark'
+                ? '0 3px 10px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)'
+                : '0 3px 10px rgba(74,144,226,0.4), 0 1px 3px rgba(74,144,226,0.3)')
             : 'none',
           marginRight: '0.3rem',
           transition: 'all 0.2s ease',
-          transform: isHovered ? 'translateY(-2px) scale(1.05)' : 'translateY(0) scale(1)', // Added slight scale effect
+          transform: isHovered ? 'translateY(-2px) scale(1.05)' : 'translateY(0) scale(1)',
         }}
       >
         <svg
           ref={svgRef}
           viewBox="0 0 24 24"
           fill="none"
-          width="22" // Slightly smaller to accommodate the border
-          height="22" // Slightly smaller to accommodate the border
+          width="22"
+          height="22"
           style={{
             transition: 'transform 0.5s ease, stroke 0.2s ease',
             transform: isRotated ? 'rotate(45deg)' : 'rotate(0deg)',
-            stroke: theme === 'dark' 
-              ? (isHovered ? '#ffffff' : '#f0f4f8') // Brighter stroke on hover
+            stroke: theme === 'dark'
+              ? (isHovered ? '#ffffff' : '#f0f4f8')
               : (isHovered ? '#4a90e2' : '#4a90e2'),
-            strokeWidth: isHovered ? 2.5 : 2, // Slightly thicker stroke on hover
+            strokeWidth: isHovered ? 2.5 : 2,
             strokeLinecap: 'round'
           }}
         >
@@ -109,17 +109,7 @@ const FileUploadButton = ({ onFileSelect, theme = 'light' }) => {
         </svg>
       </button>
     </>
-  );
-};
+  )
+}
 
-export default FileUploadButton;
-
-
-
-
-
-
-
-
-
-
+export default FileUploadButton

@@ -1,8 +1,8 @@
-import React from 'react';
-import Lottie from 'lottie-react';
-import botAnimation from '../assets/bot_Animation_3.json'; // Make sure this path is correct
+import React from 'react'
+import Lottie from 'lottie-react'
+import botAnimation from '../assets/bot_Animation_3.json'
 
-// Inject keyframe animations once
+// Inject keyframe animations for bot avatar effects
 const styles = `
 @keyframes botGlow {
   0% { box-shadow: 0 0 0px rgba(142, 185, 234, 0.0); }
@@ -14,14 +14,19 @@ const styles = `
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
-`;
+`
 if (typeof document !== 'undefined' && !document.getElementById('bot-animation-style')) {
-  const styleTag = document.createElement('style');
-  styleTag.id = 'bot-animation-style';
-  styleTag.innerHTML = styles;
-  document.head.appendChild(styleTag);
+  const styleTag = document.createElement('style')
+  styleTag.id = 'bot-animation-style'
+  styleTag.innerHTML = styles
+  document.head.appendChild(styleTag)
 }
 
+/**
+ * ChatHeader component renders the top bar of the chatbot window,
+ * including the animated bot avatar, bot name, online status,
+ * theme toggle, and close button.
+ */
 const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding }) => {
   return (
     <div style={{
@@ -29,17 +34,18 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: viewport.isMobile ? '0.5rem 1rem' : '0.6rem 1.2rem',
-      background: theme === 'dark' 
-        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 100%)' 
+      background: theme === 'dark'
+        ? 'linear-gradient(135deg, #3a4050 0%, #4a5060 100%)'
         : 'linear-gradient(135deg, rgb(142, 185, 234) 0%, rgb(133, 184, 242) 100%)',
       color: '#fff',
       borderTopLeftRadius: viewport.width <= 768 ? 0 : '18px',
       borderTopRightRadius: viewport.width <= 768 ? 0 : '18px',
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
     }}>
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
+      {/* Bot avatar and name */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
         gap: '10px'
       }}>
         <div
@@ -58,7 +64,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
             flexShrink: 0
           }}
         >
-          <Lottie 
+          <Lottie
             animationData={botAnimation}
             loop={true}
             autoplay={true}
@@ -97,8 +103,9 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
           </div>
         </div>
       </div>
-      <div style={{ 
-        display: 'flex', 
+      {/* Theme toggle and close button */}
+      <div style={{
+        display: 'flex',
         alignItems: 'center',
         gap: '16px'
       }}>
@@ -119,6 +126,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
           }}
         >
           {theme === 'dark' ? (
+            // Sun icon for light mode
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="5"></circle>
               <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -131,6 +139,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
               <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
           ) : (
+            // Moon icon for dark mode
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
@@ -158,7 +167,7 @@ const ChatHeader = ({ theme, handleClose, toggleTheme, viewport, isResponding })
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ChatHeader;
+export default ChatHeader

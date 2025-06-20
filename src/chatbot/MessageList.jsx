@@ -1,148 +1,130 @@
-import React from 'react';
-import PdfIcon from './PdfIcon';
+import React from 'react'
+import { MessageBubble } from './Chatbot.styles'
+import PdfIcon from './PdfIcon'
 
-function formatTime(date) {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-const MessageList = ({ messages, theme, viewport, botTyping }) => {
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '10px',
-      padding: '1rem',
-      overflowY: 'auto',
-      flex: 1,
-      background: theme === 'dark' ? '#23272f' : '#ffffff'
-    }}>
-      {messages.map((msg, idx) => (
-        <div
-          key={idx}
-          style={{
-            display: 'flex',
-            flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row',
-            alignItems: 'flex-end',
-            gap: '8px',
-            maxWidth: '100%'
-          }}
-        >
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: msg.sender === 'user' 
-                ? (theme === 'dark' ? '#4a90e2' : '#6aa9f0') 
-                : (theme === 'dark' ? '#3a4050' : '#f0f7ff'),
-              fontSize: '1.2rem'
-            }}
-          >
-            {msg.sender === 'user' ? (msg.avatar || '🧑') : '🤖'}
-          </div>
-          <div
-            style={{
-              background: msg.sender === 'user'
-                ? (theme === 'dark' ? '#4a90e2' : '#6aa9f0')
-                : (theme === 'dark' ? '#3a4050' : '#f0f7ff'),
-              color: msg.sender === 'user' ? '#fff' : (theme === 'dark' ? '#f0f4f8' : '#3a4555'),
-              padding: '0.8rem 1rem',
-              borderRadius: '18px',
-              borderBottomLeftRadius: msg.sender === 'user' ? '18px' : '4px',
-              borderBottomRightRadius: msg.sender === 'user' ? '4px' : '18px',
-              maxWidth: '70%',
-              wordBreak: 'break-word',
-              boxShadow: theme === 'dark' 
-                ? '0 1px 3px rgba(0,0,0,0.2)' 
-                : '0 1px 3px rgba(0,0,0,0.1)'
-            }}
-          >
-            {msg.isPdf ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <PdfIcon size={20} color="#ff5050" />
-                <span>{msg.text}</span>
-              </div>
-            ) : (
-              <div>{msg.text}</div>
-            )}
-            <div style={{
-              fontSize: '0.7rem',
-              opacity: 0.7,
-              marginTop: '4px',
-              textAlign: msg.sender === 'user' ? 'right' : 'left'
-            }}>
-              {formatTime(msg.time)}
-            </div>
-          </div>
+/**
+ * MessageList renders all chat messages, including support for
+ * PDF previews, summaries with copy, and timestamps.
+ */
+const MessageList = ({
+  messages,
+  theme,
+  viewport,
+  hoveredSummaryIdx,
+  setHoveredSummaryIdx,
+  copiedSummaryIdx,
+  handleCopySummary,
+  formatTime
+}) => (
+  <>
+    {messages.map((msg, i) => (
+      <div key={i} style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+        marginBottom: 8,
+      }}>
+        {/* Sender label */}
+        <div style={{
+          fontSize: '0.75rem',
+          fontWeight: 500,
+          marginLeft: msg.sender === 'bot' ? '12px' : undefined,
+          marginRight: msg.sender === 'user' ? '12px' : undefined,
+          marginBottom: '2px',
+          color: theme === 'dark' ? '#a0a8b8' : '#6a7383',
+        }}>
+          {msg.sender === 'bot' ? 'Chaya' : 'You'}
         </div>
-      ))}
-      {botTyping && (
         <div style={{
           display: 'flex',
           alignItems: 'flex-end',
-          gap: '8px',
-          maxWidth: '100%'
+          flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
         }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: theme === 'dark' ? '#3a4050' : '#f0f7ff',
-            fontSize: '1.2rem'
-          }}>
-            🤖
-          </div>
-          <div style={{
-            background: theme === 'dark' ? '#3a4050' : '#f0f7ff',
-            color: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-            padding: '0.8rem 1rem',
-            borderRadius: '18px',
-            borderBottomLeftRadius: '4px',
-            maxWidth: '70%',
-            boxShadow: theme === 'dark' 
-              ? '0 1px 3px rgba(0,0,0,0.2)' 
-              : '0 1px 3px rgba(0,0,0,0.1)'
-          }}>
-            <div style={{
-              display: 'flex',
-              gap: '4px',
-              alignItems: 'center'
+          <MessageBubble
+            $sender={msg.sender}
+            $theme={theme}
+            $viewport={viewport}
+            style={{
+              position: 'relative',
+              paddingRight: msg.isSummary ? 38 : undefined,
+              maxWidth: '80%',
+              wordBreak: 'break-word',
+              whiteSpace: msg.isSummary ? 'pre-wrap' : undefined
+            }}
+            onMouseEnter={() => msg.isSummary ? setHoveredSummaryIdx(i) : null}
+            onMouseLeave={() => msg.isSummary ? setHoveredSummaryIdx(null) : null}
+          >
+            {/* PDF message */}
+            {msg.isPdf ? (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                color: msg.sender === 'user' ? '#ffffff' : (theme === 'dark' ? '#f0f4f8' : '#3a4555')
+              }}>
+                <PdfIcon size={20} color="#ff5050" />
+                <span style={{
+                  fontStyle: 'italic',
+                  color: msg.sender === 'user' ? '#ffffff' : 'inherit'
+                }}>
+                  {msg.text}
+                </span>
+              </div>
+            ) : (
+              msg.isSummary ? (
+                <span style={{ whiteSpace: 'pre-wrap', display: 'block' }}>{msg.text}</span>
+              ) : (
+                msg.text
+              )
+            )}
+            {/* File attachment (non-PDF) */}
+            {msg.file && !msg.isPdf && (
+              <span style={{ display: 'block', fontSize: '0.9em', marginTop: 4 }}>
+                <span>📎 {msg.file.name}</span>
+              </span>
+            )}
+            {/* Timestamp */}
+            <span style={{
+              fontSize: '0.7em',
+              opacity: 0.9,
+              marginLeft: '8px',
+              float: 'right',
+              marginTop: '6px',
+              position: 'relative',
+              bottom: '-2px',
+              verticalAlign: 'sub',
+              color: msg.sender === 'user' ? '#ffffff' : 'inherit',
+              fontWeight: msg.sender === 'user' ? '500' : 'inherit'
             }}>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-                animation: 'pulse 1s infinite'
-              }}></div>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-                animation: 'pulse 1s infinite 0.2s'
-              }}></div>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: theme === 'dark' ? '#f0f4f8' : '#3a4555',
-                animation: 'pulse 1s infinite 0.4s'
-              }}></div>
-            </div>
-          </div>
+              {formatTime(msg.time)}
+            </span>
+            {/* Copy summary button */}
+            {msg.isSummary && hoveredSummaryIdx === i && (
+              <button
+                onClick={() => handleCopySummary(msg.text, i)}
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  right: 8,
+                  background: copiedSummaryIdx === i ? '#4caf50' : (theme === 'dark' ? '#23272f' : '#e8f4ff'),
+                  color: copiedSummaryIdx === i ? '#fff' : (theme === 'dark' ? '#f0f4f8' : '#4a90e2'),
+                  border: 'none',
+                  borderRadius: '4px',
+                  fontSize: '0.8rem',
+                  padding: '2px 10px',
+                  cursor: 'pointer',
+                  zIndex: 2,
+                  transition: 'background 0.2s, color 0.2s'
+                }}
+              >
+                {copiedSummaryIdx === i ? 'Copied!' : 'Copy'}
+              </button>
+            )}
+          </MessageBubble>
         </div>
-      )}
-    </div>
-  );
-};
+      </div>
+    ))}
+  </>
+)
 
-export default MessageList;
-
-
+export default MessageList

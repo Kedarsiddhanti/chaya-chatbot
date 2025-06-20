@@ -1,6 +1,9 @@
-import React from 'react';
-import pdfIconSvg from '../assets/pdf_icon.svg';
+import React from 'react'
+import pdfIconSvg from '../assets/pdf_icon.svg'
 
+/**
+ * PdfIcon renders a PDF file icon with configurable size and color.
+ */
 const PdfIcon = ({ size = 24, color = '#ffffff' }) => {
   return (
     <img 
@@ -15,10 +18,7 @@ const PdfIcon = ({ size = 24, color = '#ffffff' }) => {
         opacity: 0.9
       }}
     />
-  );
-};
+  )
+}
 
-export default PdfIcon;
-
-
-
+export default PdfIcon

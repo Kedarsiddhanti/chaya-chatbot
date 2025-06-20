@@ -1,55 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import EmojiPicker from 'emoji-picker-react';
+import React from 'react'
+import EmojiPicker from 'emoji-picker-react'
 
-const EmojiPickerContainer = ({ 
-  showEmojiPicker, 
-  handleEmojiClick, 
-  theme
-}) => {
-  const [isMobile, setIsMobile] = useState(false); // Start with false to avoid mismatch
+/**
+ * EmojiPickerContainer displays the emoji picker popup when triggered.
+ * It is responsive and adapts its size and position based on the viewport.
+ */
+const EmojiPickerContainer = ({ showEmojiPicker, handleEmojiClick, theme }) => {
+  if (!showEmojiPicker) return null
 
-  useEffect(() => {
-    // Set immediately on mount
-    const updateIsMobile = () => {
-      setIsMobile(window.matchMedia('(max-width: 480px)').matches);
-    };
-
-    updateIsMobile(); // Initial check
-    window.addEventListener('resize', updateIsMobile);
-    return () => window.removeEventListener('resize', updateIsMobile);
-  }, []);
-
-  if (!showEmojiPicker) return null;
+  // Responsive sizing and positioning for the emoji picker
+  const width = window.innerWidth <= 480
+    ? Math.min(window.innerWidth - 20, 320)
+    : (window.innerWidth <= 768 ? 260 : 320)
+  const height = window.innerWidth <= 480
+    ? 220
+    : (window.innerWidth <= 768 ? 280 : 350)
+  const bottom = window.innerWidth <= 480
+    ? 60
+    : (window.innerWidth <= 768 ? 65 : 70)
+  const right = window.innerWidth <= 480
+    ? 5
+    : (window.innerWidth <= 768 ? 10 : 10)
 
   return (
     <div
       className="emoji-picker-container"
       style={{
         position: 'absolute',
-        bottom: isMobile ? '60px' : '70px',
-        right: isMobile ? '5px' : '10px',
+        bottom,
+        right,
         zIndex: 10,
-        boxShadow:
-          theme === 'dark'
-            ? '0 5px 20px rgba(0,0,0,0.3)'
-            : '0 5px 20px rgba(0,0,0,0.15)',
+        boxShadow: '0 5px 20px rgba(0,0,0,0.15)',
         borderRadius: '10px',
         overflow: 'hidden',
-        border:
-          theme === 'dark' ? '1px solid #3d4352' : '1px solid #d8e6ff',
-        maxWidth: '100vw',
-        maxHeight: isMobile ? '300px' : '350px',
+        width,
+        height,
+        background: theme === 'dark' ? '#23272f' : '#fff'
       }}
     >
       <EmojiPicker
         onEmojiClick={handleEmojiClick}
-        height={isMobile ? 300 : 350}
-        width={isMobile ? 280 : 320}
-        theme={theme === 'dark' ? 'dark' : 'light'}
-        searchDisabled={isMobile}
+        height={height}
+        width={width}
+        theme={theme}
       />
     </div>
-  );
-};
+  )
+}
 
-export default EmojiPickerContainer;
+export default EmojiPickerContainer
